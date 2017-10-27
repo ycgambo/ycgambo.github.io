@@ -1,15 +1,12 @@
-
 ---
-
-title: mysql引擎
+title: MySQL及InnoDB引擎
 date: 2017-07-17
-tag: [php, database]
-
+tag: [MySQL]
 ---
-
-> MyISAM锁表，InnoDB锁行；MyISAM不支持事务，InnoDB支持。
 
 MySQL的[Introduction to InnoDB](https://dev.mysql.com/doc/refman/5.7/en/innodb-introduction.html)介绍了InnoBD的一些特点：
+
+<!-- more -->
 
 Key advantages of InnoDB include:
 
@@ -31,7 +28,3 @@ ACID是指在可靠数据库管理系统（DBMS）中，事务(transaction)所�
 - 行锁和类似Oracle的并行读取提升了多用户操作性能。
 - InnoDB表依靠主键整理磁盘中的数据以改善查询。每一张InnoDB表都有一个叫聚合索引的主键用来组织数据以最小化主键的查询I/O。
 - 为了保证数据完整和同步，InnoDB提供了外键约束。通过外键，跨表的数据插入、更新、删除可以保证一致
-
-未完待续
-MyISAM特点
-mysql优化

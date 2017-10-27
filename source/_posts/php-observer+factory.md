@@ -1,37 +1,34 @@
-
 ---
-
-title: php 观察者模式+工厂模式 组合应用
+title: PHP观察者模式+工厂模式组合应用
 date: 2017-07-02
-tag: [php]
-
+tag: [php, 设计模式]
 ---
 
-工厂模式把类的创建者和创建的类分离开来，负责产生正确的被观察对象，然后控制器将观察者绑定在需要被观察的对象上。
-
-采用这种组合的好处是类间的关系十分松散，可以灵活应对需求的变更：
-
+工厂模式把类的创建者和创建的类分离开来，负责产生正确的被观察对象，然后控制器将观察者绑定在需要被观察的对象上。采用这种组合的好处是类间的关系十分松散，可以灵活应对需求的变更：
 - 需求功能的增减（如增加某个日志、增加某些监管）
 - 需求类型的增减（如扩展某种类、新增一些类）
 - 按照接口编程，控制器需要改动的代码很少
 
-下面用request类（被创建的类、被观察对象）和一些辅助类（观察者、工厂管理者、工厂）做说明。
-
+目录：
 <!-- MarkdownTOC -->
 
-- [定义抽象request类型](#定义抽象request类型)
-- [定义观察者和被观察者类型](#定义观察者和被观察者类型)
-- [扩展request为http类型](#扩展request为http类型)
-- [构造观察者](#构造观察者)
-- [定义工厂管理者](#定义工厂管理者)
-- [定义工厂接口](#定义工厂接口)
-- [构造request工厂管理者](#构造request工厂管理者)
-- [构造Request_http工厂](#构造requesthttp工厂)
-- [控制器](#控制器)
+- [定义抽象request类型](#%E5%AE%9A%E4%B9%89%E6%8A%BD%E8%B1%A1request%E7%B1%BB%E5%9E%8B)
+- [定义观察者和被观察者类型](#%E5%AE%9A%E4%B9%89%E8%A7%82%E5%AF%9F%E8%80%85%E5%92%8C%E8%A2%AB%E8%A7%82%E5%AF%9F%E8%80%85%E7%B1%BB%E5%9E%8B)
+- [扩展request为http类型](#%E6%89%A9%E5%B1%95request%E4%B8%BAhttp%E7%B1%BB%E5%9E%8B)
+- [构造观察者](#%E6%9E%84%E9%80%A0%E8%A7%82%E5%AF%9F%E8%80%85)
+- [定义工厂管理者](#%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%8E%82%E7%AE%A1%E7%90%86%E8%80%85)
+- [定义工厂接口](#%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%8E%82%E6%8E%A5%E5%8F%A3)
+- [构造request工厂管理者](#%E6%9E%84%E9%80%A0request%E5%B7%A5%E5%8E%82%E7%AE%A1%E7%90%86%E8%80%85)
+- [构造Request_http工厂](#%E6%9E%84%E9%80%A0requesthttp%E5%B7%A5%E5%8E%82)
+- [控制器](#%E6%8E%A7%E5%88%B6%E5%99%A8)
 
 <!-- /MarkdownTOC -->
 
-<a name="定义抽象request类型"></a>
+<!-- more -->
+
+下面用request类（被创建的类、被观察对象）和一些辅助类（观察者、工厂管理者、工厂）做说明。
+
+<a name="%E5%AE%9A%E4%B9%89%E6%8A%BD%E8%B1%A1request%E7%B1%BB%E5%9E%8B"></a>
 ## 定义抽象request类型
 
 request可能来自http，也可能来自app或者其他请求，采用`$_type`标明。
@@ -50,7 +47,7 @@ abstract class Request
 }
 ```
 
-<a name="定义观察者和被观察者类型"></a>
+<a name="%E5%AE%9A%E4%B9%89%E8%A7%82%E5%AF%9F%E8%80%85%E5%92%8C%E8%A2%AB%E8%A7%82%E5%AF%9F%E8%80%85%E7%B1%BB%E5%9E%8B"></a>
 ## 定义观察者和被观察者类型
 
 被观察者接口：
@@ -77,7 +74,7 @@ interface IObserver
 
 update用于观察者实现自身的行为，或者更新被观察者的状态。
 
-<a name="扩展request为http类型"></a>
+<a name="%E6%89%A9%E5%B1%95request%E4%B8%BAhttp%E7%B1%BB%E5%9E%8B"></a>
 ## 扩展request为http类型
 
 继承Request对象，并实现被观察者接口。
@@ -125,7 +122,7 @@ class Request_http extends Request implements IObservable
 }
 ```
 
-<a name="构造观察者"></a>
+<a name="%E6%9E%84%E9%80%A0%E8%A7%82%E5%AF%9F%E8%80%85"></a>
 ## 构造观察者
 
 构造一个简单的安全处理模块。
@@ -145,7 +142,7 @@ class RequestSecurityObserver implements IObserver
 
 下面实现工厂模式，构造Request_http类，并返回该类给控制器。
 
-<a name="定义工厂管理者"></a>
+<a name="%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%8E%82%E7%AE%A1%E7%90%86%E8%80%85"></a>
 ## 定义工厂管理者
 
 为了方便对不同request的特殊处理，应该为每一个类构造对应的工厂，因此需要一个管理者来操作正确的工厂。
@@ -159,7 +156,7 @@ interface IGeneraterManager
 }
 ```
 
-<a name="定义工厂接口"></a>
+<a name="%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%8E%82%E6%8E%A5%E5%8F%A3"></a>
 ## 定义工厂接口
 
 工厂方法也只定义了一个generate方法，用于生成该工厂对应的类。
@@ -171,7 +168,7 @@ interface IGenerater
 }
 ```
 
-<a name="构造request工厂管理者"></a>
+<a name="%E6%9E%84%E9%80%A0request%E5%B7%A5%E5%8E%82%E7%AE%A1%E7%90%86%E8%80%85"></a>
 ## 构造request工厂管理者
 
 `IGeneraterManager`忽视了各类工厂管理者的具体职能，此处需要赋予request工厂管理者 **特定** 的职能。
@@ -216,7 +213,7 @@ class RequestGeneraterManager implements IGeneraterManager
 }
 ```
 
-<a name="构造requesthttp工厂"></a>
+<a name="%E6%9E%84%E9%80%A0requesthttp%E5%B7%A5%E5%8E%82"></a>
 ## 构造Request_http工厂
 
 这个工厂返回Request_http类型，它还有权决定返回哪种Request_http类型，可能是Request_http_mobile以适应移动终端，也可能是Request_http_pc以适应桌面端。
@@ -236,7 +233,7 @@ class RequestGenerater_http implements IGenerater
 
 至此，所有的类已经构造完毕。接下来是控制器的控制流。
 
-<a name="控制器"></a>
+<a name="%E6%8E%A7%E5%88%B6%E5%99%A8"></a>
 ## 控制器
 
 首先在控制器中引入 *工厂管理者* 和各种 *观察者*。
