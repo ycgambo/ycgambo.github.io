@@ -3,6 +3,14 @@
 	{
 		"selected_items":
 		[
+			[
+				"In",
+				"InnoDB"
+			],
+			[
+				"t",
+				"true"
+			]
 		]
 	},
 	"buffers":
@@ -15,10 +23,18 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 203.0,
-		"last_filter": "prettyjson",
+		"height": 375.0,
+		"last_filter": "toc",
 		"selected_items":
 		[
+			[
+				"toc",
+				"MarkdownTOC:Insert TOC"
+			],
+			[
+				"pcip",
+				"Package Control: Install Package"
+			],
 			[
 				"prettyjson",
 				"Pretty JSON: Format (Pretty Print) JSON"
@@ -26,10 +42,6 @@
 			[
 				"pclp",
 				"Package Control: List Packages"
-			],
-			[
-				"pcip",
-				"Package Control: Install Package"
 			],
 			[
 				"sulinter",
@@ -84,7 +96,7 @@
 				"Install Package Control"
 			]
 		],
-		"width": 471.0
+		"width": 506.0
 	},
 	"console":
 	{
@@ -104,6 +116,15 @@
 	},
 	"file_history":
 	[
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/php-mysql-engine.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/php-observer+factory.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/php-observer.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/vbs-copyFileFromUDisk.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/php-singleton.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/bootstrap-css-nav.md",
+		"/Users/ycgambo/Documents/github/notee.cc/source/_posts/sublime-note.md",
+		"/Users/ycgambo/Library/Application Support/Sublime Text 3/Packages/User/MarkdownTOC.sublime-settings",
+		"/Users/ycgambo/Library/Application Support/Sublime Text 3/Packages/MarkdownTOC/MarkdownTOC.sublime-settings",
 		"/Users/ycgambo/Downloads/resume.html",
 		"/Applications/XMind.app/Contents/Eclipse/XMind.ini",
 		"/Users/ycgambo/Downloads/预发.xml",
@@ -170,7 +191,7 @@
 	},
 	"input":
 	{
-		"height": 33.0
+		"height": 35.0
 	},
 	"layout":
 	{
