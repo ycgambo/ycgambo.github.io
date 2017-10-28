@@ -262,7 +262,7 @@ echo $test1->val . $test2->val . $test3->val;   // 123
 现代化的PHP应用采用autoload方法加载类，这对单例类来说似乎非常友好。
 
 ```php
-namespace \namespace\to\this\class
+namespace \namespace\to\this\class;
 
 use \class1\in\some\namespace;
 use \class22\in\some\namespace;
