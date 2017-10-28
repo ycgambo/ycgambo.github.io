@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="MySQL," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -79,18 +79,13 @@
 
 
 
-<meta name="description" content="MySQL的Introduction to InnoDB介绍了InnoBD的一些特点：">
-<meta name="keywords" content="MySQL">
-<meta property="og:type" content="article">
-<meta property="og:title" content="MySQL及InnoDB引擎">
-<meta property="og:url" content="http://www.notee.cc/2017/07/17/php-mysql-engine/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ycgambo の blog">
+<meta property="og:url" content="http://www.notee.cc/archives/2017/10/index.html">
 <meta property="og:site_name" content="ycgambo の blog">
-<meta property="og:description" content="MySQL的Introduction to InnoDB介绍了InnoBD的一些特点：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-10-27T14:12:12.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL及InnoDB引擎">
-<meta name="twitter:description" content="MySQL的Introduction to InnoDB介绍了InnoBD的一些特点：">
+<meta name="twitter:title" content="ycgambo の blog">
 
 
 
@@ -120,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="http://www.notee.cc/2017/07/17/php-mysql-engine/"/>
+  <link rel="canonical" href="http://www.notee.cc/archives/2017/10/"/>
 
 
 
 
 
-  <title>MySQL及InnoDB引擎 | ycgambo の blog</title>
+  <title>归档 | ycgambo の blog</title>
   
 
 
@@ -145,7 +140,7 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left page-archive">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -219,172 +214,74 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
+  
+  
+  
+  <div class="post-block archive">
+    <div id="posts" class="posts-collapse">
+      <span class="archive-move-on"></span>
 
-  
+      <span class="archive-page-counter">
+        
+        
+        
+          
+        
+        嗯..! 目前共计 5 篇日志。 继续努力。
+      </span>
 
-  
-  
-  
+      
+
+        
+        
+        
+
+        
+          
+          <div class="collection-title">
+            <h1 class="archive-year" id="archive-year-2017">2017</h1>
+          </div>
+        
+        
+
+        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/2017/07/17/php-mysql-engine/">
+    <header class="post-header">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="weiqi.guo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ycgambo の blog">
-    </span>
-
-    
-      <header class="post-header">
-
+      <h2 class="post-title">
         
-        
-          <h1 class="post-title" itemprop="name headline">MySQL及InnoDB引擎</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
+            <a class="post-title-link" href="/2017/10/28/php-observer/" itemprop="url">
               
-                <span class="post-meta-item-text">发表于</span>
+                <span itemprop="name">PHP观察者模式与发布订阅模式</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-17T00:00:00+08:00">
-                2017-07-17
-              </time>
-            
+            </a>
+        
+      </h2>
 
-            
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2017-10-28T00:00:00+08:00"
+              content="2017-10-28" >
+          10-28
+        </time>
+      </div>
 
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>MySQL的<a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-introduction.html" target="_blank" rel="external">Introduction to InnoDB</a>介绍了InnoBD的一些特点：</p>
-<a id="more"></a>
-<p>Key advantages of InnoDB include:</p>
-<ul>
-<li><p>Its DML operations follow the ACID model, with transactions featuring commit, rollback, and crash-recovery capabilities to protect user data. See Section 14.2, “InnoDB and the ACID Model” for more information.</p>
-</li>
-<li><p>Row-level locking and Oracle-style consistent reads increase multi-user concurrency and performance. See Section 14.5, “InnoDB Locking and Transaction Model” for more information.</p>
-</li>
-<li><p>InnoDB tables arrange your data on disk to optimize queries based on primary keys. Each InnoDB table has a primary key index called the clustered index that organizes the data to minimize I/O for primary key lookups. See Section 14.8.2.1, “Clustered and Secondary Indexes” for more information.</p>
-</li>
-<li><p>To maintain data integrity, InnoDB supports FOREIGN KEY constraints. With foreign keys, inserts, updates, and deletes are checked to ensure they do not result in inconsistencies across different tables. See Section 14.8.1.6, “InnoDB and FOREIGN KEY Constraints” for more information. </p>
-</li>
-</ul>
-<p>DML(Data Manipulation Language)数据操纵语言。</p>
-<p>ACID是指在可靠数据库管理系统（DBMS）中，事务(transaction)所应该具有的四个特性：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）。</p>
-<p>翻译过来就是：</p>
-<ul>
-<li>InnoDB的DML操作支持ACID事务模型中的提交、回滚、崩溃恢复</li>
-<li>行锁和类似Oracle的并行读取提升了多用户操作性能。</li>
-<li>InnoDB表依靠主键整理磁盘中的数据以改善查询。每一张InnoDB表都有一个叫聚合索引的主键用来组织数据以最小化主键的查询I/O。</li>
-<li>为了保证数据完整和同步，InnoDB提供了外键约束。通过外键，跨表的数据插入、更新、删除可以保证一致</li>
-</ul>
-
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2017/07/05/php-singleton/" rel="next" title="PHP单例模式">
-                <i class="fa fa-chevron-left"></i> PHP单例模式
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/10/28/php-observer/" rel="prev" title="PHP观察者模式与发布订阅模式">
-                PHP观察者模式与发布订阅模式 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
+    </header>
   </article>
 
 
 
-    <div class="post-spread">
       
+
     </div>
   </div>
+  
+  
+  
+
+  
+
 
 
           </div>
@@ -392,10 +289,6 @@
 
 
           
-
-  
-
-
 
         </div>
         
@@ -608,10 +501,6 @@
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
-
-
 
   
 
