@@ -229,6 +229,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/2017/11/02/tools_zookeeper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/11/02/tools_zookeeper/" itemprop="url">ZooKeeper分布式配置踩坑记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-02T15:11:23+08:00">
+                2017-11-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.  </p>
+</blockquote>
+<p>ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。</p>
+<p>换句话说，ZooKeeper：</p>
+<ul>
+<li>用来维护配置信息</li>
+<li>配置被管理在命名空间中</li>
+<li>可以扩展，提供分布式服务</li>
+<li>支持分布式同步：一处修改，其他机器同步更新</li>
+</ul>
+<p>这次配置出坑比较久，Mark一下。</p>
+<p>目录：<br><!-- MarkdownTOC --></p>
+<ul>
+<li><a href="#%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0">坑1：主机数要求至少3台</a></li>
+<li><a href="#%E5%9D%912%EF%BC%9Amyid%E6%96%87%E4%BB%B6">坑2：myid文件</a></li>
+<li><a href="#%E5%9D%913%EF%BC%9A%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A">坑3：网络不通</a><ul>
+<li><a href="#1-%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%AD%A3%E7%A1%AE">1. 端口是否配置正确</a></li>
+<li><a href="#2-hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE">2. hosts映射是否正确</a></li>
+<li><a href="#3-%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99">3. 服务器防火墙</a></li>
+<li><a href="#4-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5">4. 服务器供应商安全策略</a></li>
+</ul>
+</li>
+</ul>
+<!-- /MarkdownTOC -->
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/11/02/tools_zookeeper/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.notee.cc/2017/10/29/tools_test_ab/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -977,7 +1125,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -990,7 +1138,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

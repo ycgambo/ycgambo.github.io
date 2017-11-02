@@ -1,6 +1,6 @@
 ---
 title: VBS探索U盘
-date: 2017-06-27
+date: 2017/06/27
 tag: [VBS]
 ---
 

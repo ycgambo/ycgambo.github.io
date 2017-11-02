@@ -1,6 +1,6 @@
 ---
 title: 记第一次压测
-date: 2017-10-29
+date: 2017/10/29
 tag: [Tool, Server]
 ---
 
