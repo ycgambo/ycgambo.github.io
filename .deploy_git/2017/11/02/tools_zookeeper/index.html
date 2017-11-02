@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ycgambo の blog">
 <meta property="og:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-02T09:05:53.000Z">
+<meta property="og:updated_time" content="2017-11-02T09:07:41.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper分布式配置踩坑记">
 <meta name="twitter:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
@@ -328,7 +328,7 @@
 <a id="more"></a>
 <p>运行zkServer start后，当前路径会生成zookeeper.out文件，其中保存了启动日志。</p>
 <p><a name="%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0"></a></p>
-<h2 id="坑1：主机数要求至少3台"><a href="#坑1：主机数要求至少3台" class="headerlink" title="坑1：主机数要求至少3台"></a>坑1：主机数要求至少3台</h2><p>ZooKeeper会选举一台机器作为leader，其它机器作为follower。<strong>如果希望F台机器挂掉时仍能提供服务，ZooKeeper集群至少需要2F+1台机器。</strong>如果有3台机器，可以挂1台；4台可以挂1台；5台可以挂2台；6台可以挂两台。</p>
+<h2 id="坑1：主机数要求至少3台"><a href="#坑1：主机数要求至少3台" class="headerlink" title="坑1：主机数要求至少3台"></a>坑1：主机数要求至少3台</h2><p>ZooKeeper会选举一台机器作为leader，其它机器作为follower。<strong>如果希望F台机器挂掉时仍能提供服务，ZooKeeper集群至少需要2F+1台机器。</strong>如果有3台机器，可以挂1台；4台可以挂1台；5台可以挂2台；6台可以挂2台。</p>
 <p>所以3台机器可以拿出来一台维护，但是不能承担维护时另外两台中任何一台挂掉。而5台机器可以在其中一台维护时，仍然具有容灾能力。</p>
 <p><a name="%E5%9D%912%EF%BC%9Amyid%E6%96%87%E4%BB%B6"></a></p>
 <h2 id="坑2：myid文件"><a href="#坑2：myid文件" class="headerlink" title="坑2：myid文件"></a>坑2：myid文件</h2><p>分布式的ZooKeeper在配置好zoo.cfg之后，还需要配置myid文件。</p>
