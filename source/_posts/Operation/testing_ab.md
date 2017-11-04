@@ -5,6 +5,7 @@ categories: Operation
 tags:
     - Operation
     - Testing
+    - todo
 ---
 
 >ab(apache bench)是Apache超文本传输协议(HTTP)的性能测试工具。其设计意图是描绘当前所安装的Apache的执行性能，主要显示所安装的Apache每秒可以处理多少个请求。
