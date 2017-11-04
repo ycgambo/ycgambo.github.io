@@ -90,7 +90,8 @@
 <meta property="og:image" content="http://www.notee.cc/images/Operation/testing_ab/without_opcache.png">
 <meta property="og:image" content="http://www.notee.cc/images/Operation/testing_ab/with_opcache.png">
 <meta property="og:image" content="http://www.notee.cc/images/Operation/testing_ab/response_time_chart.png">
-<meta property="og:updated_time" content="2017-11-04T13:56:29.000Z">
+<meta property="og:image" content="http://www.notee.cc/images/Operation/testing_ab/performance_YII.png">
+<meta property="og:updated_time" content="2017-11-04T16:48:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记第一次压测">
 <meta name="twitter:description" content="ab(apache bench)是Apache超文本传输协议(HTTP)的性能测试工具。其设计意图是描绘当前所安装的Apache的执行性能，主要显示所安装的Apache每秒可以处理多少个请求。  它不仅可以对apache服务器进行网站访问压力测试，也可以对其它类型的服务器进行压力测试。比如nginx、tomcat、IIS等。 此次测试使用的机器为：  Mac下2G内存双CPU虚拟机 CentOS">
@@ -318,10 +319,11 @@
 <li><a href="#%E4%B8%8D%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98">不使用opcache缓存</a></li>
 <li><a href="#%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98">使用opcache缓存</a></li>
 <li><a href="#%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E6%AF%94%E8%BE%83">响应时间比较</a></li>
+<li><a href="#%E4%B8%8B%E4%B8%80%E6%AD%A5%E8%AE%A1%E5%88%92">下一步计划</a></li>
 </ul>
 <!-- /MarkdownTOC -->
 <a id="more"></a>
-<p>安装ab：</p>
+<p>安装ab，ab命令在httpd-tools软件包中：</p>
 <pre><code>yum install httpd-tools
 </code></pre><p>安装opcache：</p>
 <pre><code>yum install php70w-opcache
@@ -330,7 +332,17 @@
 <p><a name="%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a></p>
 <h2 id="使用opcache缓存"><a href="#使用opcache缓存" class="headerlink" title="使用opcache缓存"></a>使用opcache缓存</h2><p><img src="/images/Operation/testing_ab/with_opcache.png" alt="with_opcache"></p>
 <p><a name="%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E6%AF%94%E8%BE%83"></a></p>
-<h2 id="响应时间比较"><a href="#响应时间比较" class="headerlink" title="响应时间比较"></a>响应时间比较</h2><p><img src="/images/Operation/testing_ab/response_time_chart.png" alt="response_time_chart"></p>
+<h2 id="响应时间比较"><a href="#响应时间比较" class="headerlink" title="响应时间比较"></a>响应时间比较</h2><p>细线为缓存之后的响应时间<br><img src="/images/Operation/testing_ab/response_time_chart.png" alt="response_time_chart"></p>
+<p><a name="%E4%B8%8B%E4%B8%80%E6%AD%A5%E8%AE%A1%E5%88%92"></a></p>
+<h2 id="下一步计划"><a href="#下一步计划" class="headerlink" title="下一步计划"></a>下一步计划</h2><p>这次测试出来的数据和YII官方给到的性能存在很大差距，官方达到600+RPS，有以下几种可能：</p>
+<ul>
+<li>框架版本，官方用的是第一版</li>
+<li>缓存插件，官方用的APC</li>
+<li>keep-alive，官方测试时可能关闭了该功能</li>
+<li>服务器性能，测试的时候cpu跑满，但是Memory还有很多盈余，但mac pro两个cpu性能应该不会差</li>
+<li>缓存优化，很多人调缓存参数以提高并发，需要按官方配置再跑一跑</li>
+</ul>
+<p><a href="http://www.yiichina.com/performance" target="_blank" rel="external">官方数据</a>：<br><img src="/images/Operation/testing_ab/performance_YII.png" alt="response_time_chart"></p>
 
       
     </div>
@@ -527,7 +539,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#不使用opcache缓存"><span class="nav-number">1.</span> <span class="nav-text">不使用opcache缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用opcache缓存"><span class="nav-number">2.</span> <span class="nav-text">使用opcache缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应时间比较"><span class="nav-number">3.</span> <span class="nav-text">响应时间比较</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#不使用opcache缓存"><span class="nav-number">1.</span> <span class="nav-text">不使用opcache缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用opcache缓存"><span class="nav-number">2.</span> <span class="nav-text">使用opcache缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应时间比较"><span class="nav-number">3.</span> <span class="nav-text">响应时间比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下一步计划"><span class="nav-number">4.</span> <span class="nav-text">下一步计划</span></a></li></ol></div>
             
 
           </div>
