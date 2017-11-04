@@ -1,7 +1,11 @@
 ---
 title: ZooKeeper分布式配置踩坑记
 date: 2017/11/02 15:11:23
-tag: [Tool, 分布式, Server, ZooKeeper]
+categories: Operation
+tags:
+    - Operation
+    - Deployment
+    - Distributed
 ---
 
 > ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.  

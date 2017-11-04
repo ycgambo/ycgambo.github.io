@@ -1,7 +1,10 @@
 ---
 title: 记第一次压测
 date: 2017/10/29
-tag: [Tool, Server]
+categories: Operation
+tags:
+    - Operation
+    - Testing
 ---
 
 >ab(apache bench)是Apache超文本传输协议(HTTP)的性能测试工具。其设计意图是描绘当前所安装的Apache的执行性能，主要显示所安装的Apache每秒可以处理多少个请求。
@@ -38,16 +41,16 @@ tag: [Tool, Server]
 <a name="%E4%B8%8D%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a>
 ## 不使用opcache缓存
 
-![without_opcache](/images/tools_test_ab/without_opcache.png)
+![without_opcache](/images/Operation/testing_ab/without_opcache.png)
 
 <a name="%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a>
 ## 使用opcache缓存
 
-![with_opcache](/images/tools_test_ab/with_opcache.png)
+![with_opcache](/images/Operation/testing_ab/with_opcache.png)
 
 <a name="%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E6%AF%94%E8%BE%83"></a>
 ## 响应时间比较
 
-![response_time_chart](/images/tools_test_ab/response_time_chart.png)
+![response_time_chart](/images/Operation/testing_ab/response_time_chart.png)
 
 

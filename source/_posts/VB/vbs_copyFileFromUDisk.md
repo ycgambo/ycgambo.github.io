@@ -1,7 +1,10 @@
 ---
 title: VBS探索U盘
 date: 2017/06/27
-tag: [VBS]
+categories: VB
+tags:
+    - VB
+    - VBS
 ---
 
 如果存在多个可移动磁盘，通过该脚本可以迅速拷贝目标文件，并分析磁盘结构。
