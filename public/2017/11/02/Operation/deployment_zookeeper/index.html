@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ycgambo の blog">
 <meta property="og:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-04T16:29:08.000Z">
+<meta property="og:updated_time" content="2017-11-04T16:33:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper分布式配置踩坑记">
 <meta name="twitter:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
@@ -313,10 +313,10 @@
 <li><a href="#%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0">坑1：主机数要求至少3台</a></li>
 <li><a href="#%E5%9D%912%EF%BC%9Amyid%E6%96%87%E4%BB%B6">坑2：myid文件</a></li>
 <li><a href="#%E5%9D%913%EF%BC%9A%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A">坑3：网络不通</a><ul>
-<li><a href="#1-%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%AD%A3%E7%A1%AE">1. 端口是否配置正确</a></li>
-<li><a href="#2-hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE">2. hosts映射是否正确</a></li>
-<li><a href="#3-%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99">3. 服务器防火墙</a></li>
-<li><a href="#4-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5">4. 服务器供应商安全策略</a></li>
+<li><a href="#%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%AD%A3%E7%A1%AE">端口是否配置正确</a></li>
+<li><a href="#hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE">hosts映射是否正确</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99">服务器防火墙</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5">服务器供应商安全策略</a></li>
 </ul>
 </li>
 <li><a href="#%E5%87%BA%E5%9D%91%E8%AE%B0">出坑记</a></li>
@@ -332,20 +332,20 @@
 <p>myid文件应该放在zoo.cfg中dataDir下，值为zoo.cfg中server.id所对应的这台机器的id。</p>
 <p><a name="%E5%9D%913%EF%BC%9A%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A"></a></p>
 <h2 id="坑3：网络不通"><a href="#坑3：网络不通" class="headerlink" title="坑3：网络不通"></a>坑3：网络不通</h2><p>依次排查：</p>
-<p><a name="1-%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%AD%A3%E7%A1%AE"></a></p>
-<h3 id="1-端口是否配置正确"><a href="#1-端口是否配置正确" class="headerlink" title="1. 端口是否配置正确"></a>1. 端口是否配置正确</h3><ul>
+<p><a name="%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%AD%A3%E7%A1%AE"></a></p>
+<h3 id="端口是否配置正确"><a href="#端口是否配置正确" class="headerlink" title="端口是否配置正确"></a>端口是否配置正确</h3><ul>
 <li>检查zoo.cfg文件，端口是否冲突</li>
 <li>检查myid文件和zoo.cfg配置是否一致</li>
 <li>启动zkServer后，查看是否在监听相应端口</li>
 </ul>
 <p>该命令查看java监听的端口，会显示客户端端口port_0和同步端口port_2，如果是leader，还会有port_1。对应zoo.cfg中<code>clientPort=port_0</code>、<code>server.x=host_x:port_1:port_2</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt; netstat -anp |grep LISTEN|grep java</div><div class="line">tcp        0      0 0.0.0.0:port_0                0.0.0.0:*                   LISTEN      19641/java</div><div class="line">tcp        0      0 0.0.0.0:port_2                0.0.0.0:*                   LISTEN      19641/java</div></pre></td></tr></table></figure></p>
-<p><a name="2-hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE"></a></p>
-<h3 id="2-hosts映射是否正确"><a href="#2-hosts映射是否正确" class="headerlink" title="2. hosts映射是否正确"></a>2. hosts映射是否正确</h3><p>如果在zoo.cfg中使用了别名，应该在hosts中设置。</p>
+<p><a name="hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE"></a></p>
+<h3 id="hosts映射是否正确"><a href="#hosts映射是否正确" class="headerlink" title="hosts映射是否正确"></a>hosts映射是否正确</h3><p>如果在zoo.cfg中使用了别名，应该在hosts中设置。</p>
 <p><strong>本机别名对应的hosts应设为0.0.0.0</strong>，因此每台机器的hosts都应该略有不同。</p>
-<p><a name="3-%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99"></a></p>
-<h3 id="3-服务器防火墙"><a href="#3-服务器防火墙" class="headerlink" title="3. 服务器防火墙"></a>3. 服务器防火墙</h3><p>确保集群之间相互没有被墙</p>
-<p><a name="4-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"></a></p>
-<h3 id="4-服务器供应商安全策略"><a href="#4-服务器供应商安全策略" class="headerlink" title="4. 服务器供应商安全策略"></a>4. 服务器供应商安全策略</h3><p>服务器供应商的安全策略可能存在端口限制</p>
+<p><a name="%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99"></a></p>
+<h3 id="服务器防火墙"><a href="#服务器防火墙" class="headerlink" title="服务器防火墙"></a>服务器防火墙</h3><p>确保集群之间相互没有被墙</p>
+<p><a name="%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"></a></p>
+<h3 id="服务器供应商安全策略"><a href="#服务器供应商安全策略" class="headerlink" title="服务器供应商安全策略"></a>服务器供应商安全策略</h3><p>服务器供应商的安全策略可能存在端口限制</p>
 <p><a name="%E5%87%BA%E5%9D%91%E8%AE%B0"></a></p>
 <h2 id="出坑记"><a href="#出坑记" class="headerlink" title="出坑记"></a>出坑记</h2><p>ZooKeeper之前单机配起来很顺，单机伪分布式跑起来也没啥问题，这次搞到了机器，真机分布式配置踩坑这么久，很尴尬，总结一下：</p>
 <ol>
@@ -549,7 +549,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#坑1：主机数要求至少3台"><span class="nav-number">1.</span> <span class="nav-text">坑1：主机数要求至少3台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑2：myid文件"><span class="nav-number">2.</span> <span class="nav-text">坑2：myid文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑3：网络不通"><span class="nav-number">3.</span> <span class="nav-text">坑3：网络不通</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-端口是否配置正确"><span class="nav-number">3.1.</span> <span class="nav-text">1. 端口是否配置正确</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-hosts映射是否正确"><span class="nav-number">3.2.</span> <span class="nav-text">2. hosts映射是否正确</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-服务器防火墙"><span class="nav-number">3.3.</span> <span class="nav-text">3. 服务器防火墙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-服务器供应商安全策略"><span class="nav-number">3.4.</span> <span class="nav-text">4. 服务器供应商安全策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#出坑记"><span class="nav-number">4.</span> <span class="nav-text">出坑记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#坑1：主机数要求至少3台"><span class="nav-number">1.</span> <span class="nav-text">坑1：主机数要求至少3台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑2：myid文件"><span class="nav-number">2.</span> <span class="nav-text">坑2：myid文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑3：网络不通"><span class="nav-number">3.</span> <span class="nav-text">坑3：网络不通</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#端口是否配置正确"><span class="nav-number">3.1.</span> <span class="nav-text">端口是否配置正确</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hosts映射是否正确"><span class="nav-number">3.2.</span> <span class="nav-text">hosts映射是否正确</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器防火墙"><span class="nav-number">3.3.</span> <span class="nav-text">服务器防火墙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器供应商安全策略"><span class="nav-number">3.4.</span> <span class="nav-text">服务器供应商安全策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#出坑记"><span class="nav-number">4.</span> <span class="nav-text">出坑记</span></a></li></ol></div>
             
 
           </div>
