@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.notee.cc/"/>
-  <updated>2017-11-05T04:48:47.000Z</updated>
+  <updated>2017-11-05T09:53:57.000Z</updated>
   <id>http://www.notee.cc/</id>
   
   <author>
@@ -17,11 +17,43 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>ssh加载同一域名下的不同密钥</title>
+    <link href="http://www.notee.cc/2017/11/05/Operation/common_sshManagement/"/>
+    <id>http://www.notee.cc/2017/11/05/Operation/common_sshManagement/</id>
+    <published>2017-11-05T09:11:21.000Z</published>
+    <updated>2017-11-05T09:53:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文已GitHub为例，实现一台终端操作多个GitHub仓库时，自动加载相应密钥，避免了手动切换密钥的麻烦，有利于脚本化操作。文中贴出了我的ssh配置文件，大家可以参考。</p><p>目录：<br><!-- MarkdownTOC --></p><ul><li><a href="#%E5%AF%86%E9%92%A5%E5%AF%B9%E5%91%BD%E5%90%8D%E8%A6%81%E5%90%88%E7%90%86">密钥对命名要合理</a></li><li><a href="#%E5%88%A9%E7%94%A8config%E6%96%87%E4%BB%B6%E9%80%89%E6%8B%A9%E7%9B%B8%E5%BA%94%E5%AF%86%E9%92%A5">利用config文件选择相应密钥</a></li></ul><!-- /MarkdownTOC --><a id="more"></a><blockquote><p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p></blockquote><script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script><hr><p><a name="%E5%AF%86%E9%92%A5%E5%AF%B9%E5%91%BD%E5%90%8D%E8%A6%81%E5%90%88%E7%90%86"></a></p><h2 id="密钥对命名要合理"><a href="#密钥对命名要合理" class="headerlink" title="密钥对命名要合理"></a>密钥对命名要合理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt; ssh-keygen</div><div class="line">Generating public/private rsa key pair.</div><div class="line">Enter file in which to save the key (~/.ssh/id_rsa):</div></pre></td></tr></table></figure><p>此时请键入合适的路径以及文件名，不要使用默认名称。我的命名方法是<code>git.用户名.仓库名</code>，如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&gt; ll ~/.ssh</div><div class="line">-rw-r--r--  1 ycgambo  staff   469B Nov  5 14:03 config</div><div class="line">-rw-------  1 ycgambo  staff   1.6K Oct 29 17:02 git.ycgambo</div><div class="line">-rw-------  1 ycgambo  staff   1.6K Nov  5 14:02 git.ycgambo.hexo-theme-next</div><div class="line">-rw-r--r--  1 ycgambo  staff   401B Nov  5 14:02 git.ycgambo.hexo-theme-next.pub</div><div class="line">-rw-------  1 ycgambo  staff   1.6K Oct 29 17:03 git.ycgambo.notee.cc</div><div class="line">-rw-r--r--  1 ycgambo  staff   401B Oct 29 17:03 git.ycgambo.notee.cc.pub</div><div class="line">-rw-r--r--  1 ycgambo  staff   401B Oct 29 17:02 git.ycgambo.pub</div><div class="line">-rw-------  1 ycgambo  staff   1.6K Oct 29 17:04 git.ycgambo.ycgambo.github.io</div><div class="line">-rw-r--r--  1 ycgambo  staff   401B Oct 29 17:04 git.ycgambo.ycgambo.github.io.pub</div></pre></td></tr></table></figure><p>这样生成的密钥对容易辨识，也容易记忆。</p><p><a name="%E5%88%A9%E7%94%A8config%E6%96%87%E4%BB%B6%E9%80%89%E6%8B%A9%E7%9B%B8%E5%BA%94%E5%AF%86%E9%92%A5"></a></p><h2 id="利用config文件选择相应密钥"><a href="#利用config文件选择相应密钥" class="headerlink" title="利用config文件选择相应密钥"></a>利用config文件选择相应密钥</h2><p><code>HostName</code>都是<code>github.com</code>，此时通过<code>Host</code>来区分不同的仓库，然后加载相应的密钥(<code>IdentityFile</code>)。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&gt; cat ~/.ssh/config</div><div class="line"></div><div class="line"># github的登录密钥</div><div class="line">Host github.com</div><div class="line">    User git</div><div class="line">    HostName github.com</div><div class="line">    IdentityFile ~/.ssh/git.ycgambo</div><div class="line"></div><div class="line"># github的notee.cc仓库</div><div class="line">Host github.com/notee.cc</div><div class="line">    User git</div><div class="line">    HostName github.com</div><div class="line">    IdentityFile ~/.ssh/git.ycgambo.notee.cc</div><div class="line"></div><div class="line"># github的ycgambo.github.io仓库</div><div class="line">Host github.com/ycgambo.github.io</div><div class="line">    User git</div><div class="line">    HostName github.com</div><div class="line">    IdentityFile ~/.ssh/git.ycgambo.ycgambo.github.io</div><div class="line"></div><div class="line"># github的hexo-theme-next仓库</div><div class="line">Host github.com/hexo-theme-next</div><div class="line">    User git</div><div class="line">    HostName github.com</div><div class="line">    IdentityFile ~/.ssh/git.ycgambo.hexo-theme-next</div></pre></td></tr></table></figure><p>这样ssh就可以在同一域名下加载不同的密钥了。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文已GitHub为例，实现一台终端操作多个GitHub仓库时，自动加载相应密钥，避免了手动切换密钥的麻烦，有利于脚本化操作。文中贴出了我的ssh配置文件，大家可以参考。&lt;/p&gt;
+&lt;p&gt;目录：&lt;br&gt;&lt;!-- MarkdownTOC --&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#%E5%AF%86%E9%92%A5%E5%AF%B9%E5%91%BD%E5%90%8D%E8%A6%81%E5%90%88%E7%90%86&quot;&gt;密钥对命名要合理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#%E5%88%A9%E7%94%A8config%E6%96%87%E4%BB%B6%E9%80%89%E6%8B%A9%E7%9B%B8%E5%BA%94%E5%AF%86%E9%92%A5&quot;&gt;利用config文件选择相应密钥&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- /MarkdownTOC --&gt;
+    
+    </summary>
+    
+      <category term="Operation" scheme="http://www.notee.cc/categories/Operation/"/>
+    
+    
+      <category term="Operation" scheme="http://www.notee.cc/tags/Operation/"/>
+    
+      <category term="Common" scheme="http://www.notee.cc/tags/Common/"/>
+    
+      <category term="ssh" scheme="http://www.notee.cc/tags/ssh/"/>
+    
+  </entry>
+  
+  <entry>
     <title>ZooKeeper分布式配置踩坑记</title>
     <link href="http://www.notee.cc/2017/11/02/Operation/deployment_zookeeper/"/>
     <id>http://www.notee.cc/2017/11/02/Operation/deployment_zookeeper/</id>
     <published>2017-11-02T07:11:23.000Z</published>
-    <updated>2017-11-05T04:48:47.000Z</updated>
+    <updated>2017-11-05T09:22:54.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote><p>ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.  </p></blockquote><p>ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。换句话说，ZooKeeper：</p><ul><li>用来维护配置信息</li><li>配置被管理在命名空间中</li><li>可以扩展，提供分布式服务</li><li>支持分布式同步：一处修改，其他机器同步更新</li></ul><p>这次配置出坑比较久，Mark一下。<a href="http://zookeeper.apache.org/doc/r3.4.10/" target="_blank" rel="external">官方文档直达</a></p><p>目录：<br><!-- MarkdownTOC --></p><ul><li><a href="#%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0">坑1：主机数要求至少3台</a></li><li><a href="#%E5%9D%912%EF%BC%9Amyid%E6%96%87%E4%BB%B6">坑2：myid文件</a></li><li><a href="#%E5%9D%913%EF%BC%9A%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A">坑3：网络不通</a><ul><li><a href="#%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE">端口配置是否正确</a></li><li><a href="#hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE">hosts映射是否正确</a></li><li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99">服务器防火墙</a></li><li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5">服务器供应商安全策略</a></li></ul></li><li><a href="#%E5%87%BA%E5%9D%91%E8%AE%B0">出坑记</a></li></ul><!-- /MarkdownTOC --><a id="more"></a><blockquote><p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p></blockquote><script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script><hr><p>运行zkServer start后，当前路径会生成zookeeper.out文件，其中保存了启动日志。</p><p><a name="%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0"></a></p><h2 id="坑1：主机数要求至少3台"><a href="#坑1：主机数要求至少3台" class="headerlink" title="坑1：主机数要求至少3台"></a>坑1：主机数要求至少3台</h2><p>ZooKeeper会选举一台机器作为leader，其它机器作为follower。<strong>如果希望F台机器挂掉时仍能提供服务，ZooKeeper集群至少需要2F+1台机器。</strong>如果有3台机器，可以挂1台；4台可以挂1台；5台可以挂2台；6台可以挂2台。</p><p>所以3台机器可以拿出来一台维护，但是不能承担维护时另外两台中任何一台挂掉。而5台机器可以在其中一台维护时，仍然具有容灾能力。</p><p><a name="%E5%9D%912%EF%BC%9Amyid%E6%96%87%E4%BB%B6"></a></p><h2 id="坑2：myid文件"><a href="#坑2：myid文件" class="headerlink" title="坑2：myid文件"></a>坑2：myid文件</h2><p>分布式的ZooKeeper在配置好zoo.cfg之后，还需要配置myid文件。</p><p>myid文件应该放在zoo.cfg中dataDir下，值为zoo.cfg中server.id所对应的这台机器的id。</p><p><a name="%E5%9D%913%EF%BC%9A%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A"></a></p><h2 id="坑3：网络不通"><a href="#坑3：网络不通" class="headerlink" title="坑3：网络不通"></a>坑3：网络不通</h2><p>依次排查：</p><p><a name="%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE"></a></p><h3 id="端口配置是否正确"><a href="#端口配置是否正确" class="headerlink" title="端口配置是否正确"></a>端口配置是否正确</h3><ul><li>检查zoo.cfg文件，端口是否冲突</li><li>检查myid文件和zoo.cfg配置是否一致</li><li>启动zkServer后，查看是否在监听相应端口</li></ul><p>该命令查看java监听的端口，会显示客户端端口port_0和同步端口port_2，如果是leader，还会有port_1。对应zoo.cfg中<code>clientPort=port_0</code>、<code>server.x=host_x:port_1:port_2</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt; netstat -anp |grep LISTEN|grep java</div><div class="line">tcp        0      0 0.0.0.0:port_0                0.0.0.0:*                   LISTEN      19641/java</div><div class="line">tcp        0      0 0.0.0.0:port_2                0.0.0.0:*                   LISTEN      19641/java</div></pre></td></tr></table></figure></p><p><a name="hosts%E6%98%A0%E5%B0%84%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE"></a></p><h3 id="hosts映射是否正确"><a href="#hosts映射是否正确" class="headerlink" title="hosts映射是否正确"></a>hosts映射是否正确</h3><p>如果在zoo.cfg中使用了别名，应该在hosts中设置。</p><p><strong>本机别名对应的hosts应设为0.0.0.0</strong>，因此每台机器的hosts都应该略有不同。</p><p><a name="%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99"></a></p><h3 id="服务器防火墙"><a href="#服务器防火墙" class="headerlink" title="服务器防火墙"></a>服务器防火墙</h3><p>确保集群之间相互没有被墙</p><p><a name="%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BE%9B%E5%BA%94%E5%95%86%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"></a></p><h3 id="服务器供应商安全策略"><a href="#服务器供应商安全策略" class="headerlink" title="服务器供应商安全策略"></a>服务器供应商安全策略</h3><p>服务器供应商的安全策略可能存在端口限制</p><p><a name="%E5%87%BA%E5%9D%91%E8%AE%B0"></a></p><h2 id="出坑记"><a href="#出坑记" class="headerlink" title="出坑记"></a>出坑记</h2><p>ZooKeeper之前单机配起来很顺，单机伪分布式跑起来也没啥问题，这次搞到了机器，真机分布式配置踩坑这么久，很尴尬，总结一下：</p><ol><li>读文档要仔细，前两个坑文档里都有提到</li><li>端口理解不够全面，netstat命令学习不到位</li><li>网络排查的时候用到很多基础知识，闲暇多锤炼基础</li><li>日志的重要性，日志给出的信息比搜索引擎更精确</li><li>搞不定请大佬，大佬一句话点醒梦中人啊</li></ol>]]></content>
     
@@ -60,11 +92,11 @@
     
       <category term="Operation" scheme="http://www.notee.cc/tags/Operation/"/>
     
-      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
-    
       <category term="Deployment" scheme="http://www.notee.cc/tags/Deployment/"/>
     
       <category term="Distributed" scheme="http://www.notee.cc/tags/Distributed/"/>
+    
+      <category term="ZooKeeper" scheme="http://www.notee.cc/tags/ZooKeeper/"/>
     
   </entry>
   
@@ -73,7 +105,7 @@
     <link href="http://www.notee.cc/2017/10/29/Operation/testing_ab/"/>
     <id>http://www.notee.cc/2017/10/29/Operation/testing_ab/</id>
     <published>2017-10-28T16:00:00.000Z</published>
-    <updated>2017-11-05T04:49:47.000Z</updated>
+    <updated>2017-11-05T09:23:21.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote><p>ab(apache bench)是Apache超文本传输协议(HTTP)的性能测试工具。其设计意图是描绘当前所安装的Apache的执行性能，主要显示所安装的Apache每秒可以处理多少个请求。</p></blockquote><p>它不仅可以对apache服务器进行网站访问压力测试，也可以对其它类型的服务器进行压力测试。比如nginx、tomcat、IIS等。</p><p>此次测试使用的机器为：</p><ul><li>Mac下2G内存双CPU虚拟机</li><li>CentOS 6</li><li>nginx/1.12.1</li><li>PHP7.0</li><li>测试页面为YII2.0框架初始页</li><li>1-1000并发keep-alive</li></ul><p>目录：<br><!-- MarkdownTOC --></p><ul><li><a href="#%E4%B8%8D%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98">不使用opcache缓存</a></li><li><a href="#%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98">使用opcache缓存</a></li><li><a href="#%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E6%AF%94%E8%BE%83">响应时间比较</a></li><li><a href="#%E4%B8%8B%E4%B8%80%E6%AD%A5%E8%AE%A1%E5%88%92">下一步计划</a></li></ul><!-- /MarkdownTOC --><a id="more"></a><blockquote><p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p></blockquote><script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script><hr><p>安装ab，ab命令在httpd-tools软件包中：</p><pre><code>yum install httpd-tools</code></pre><p>安装opcache：</p><pre><code>yum install php70w-opcache</code></pre><p><a name="%E4%B8%8D%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a></p><h2 id="不使用opcache缓存"><a href="#不使用opcache缓存" class="headerlink" title="不使用opcache缓存"></a>不使用opcache缓存</h2><p><img src="/images/Operation/testing_ab/without_opcache.png" alt="without_opcache"></p><p><a name="%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a></p><h2 id="使用opcache缓存"><a href="#使用opcache缓存" class="headerlink" title="使用opcache缓存"></a>使用opcache缓存</h2><p><img src="/images/Operation/testing_ab/with_opcache.png" alt="with_opcache"></p><p><a name="%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E6%AF%94%E8%BE%83"></a></p><h2 id="响应时间比较"><a href="#响应时间比较" class="headerlink" title="响应时间比较"></a>响应时间比较</h2><p>细线为缓存之后的响应时间<br><img src="/images/Operation/testing_ab/response_time_chart.png" alt="response_time_chart"></p><p><a name="%E4%B8%8B%E4%B8%80%E6%AD%A5%E8%AE%A1%E5%88%92"></a></p><h2 id="下一步计划"><a href="#下一步计划" class="headerlink" title="下一步计划"></a>下一步计划</h2><p>这次测试出来的数据和YII官方给到的性能存在很大差距，官方达到600+RPS，有以下几种可能：</p><ul><li>框架版本，官方用的是第一版</li><li>缓存插件，官方用的APC</li><li>keep-alive，官方测试时可能关闭了该功能</li><li>服务器性能，测试的时候cpu跑满，但是Memory还有很多盈余，但mac pro两个cpu性能应该不会差</li><li>缓存优化，很多人调缓存参数以提高并发，需要按官方配置再跑一跑</li></ul><p><a href="http://www.yiichina.com/performance" target="_blank" rel="external">官方数据</a>：<br><img src="/images/Operation/testing_ab/performance_YII.png" alt="response_time_chart"></p>]]></content>
     
@@ -109,6 +141,8 @@
       <category term="Operation" scheme="http://www.notee.cc/tags/Operation/"/>
     
       <category term="Testing" scheme="http://www.notee.cc/tags/Testing/"/>
+    
+      <category term="ab" scheme="http://www.notee.cc/tags/ab/"/>
     
       <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
     
