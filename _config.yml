@@ -71,3 +71,8 @@ deploy:
   type: git
   repo: git@github.com:ycgambo/ycgambo.github.io.git
   branch: master
+
+algolia:
+  applicationID: 'WIJEEGLTET'
+  apiKey: 'f339fa5e6343a6284c47a18345c207b9'
+  indexName: 'notee.cc'
