@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Operation,Deployment,Distributed,todo," />
+  <meta name="keywords" content="Operation,todo,Deployment,Distributed," />
 
 
 
@@ -80,14 +80,14 @@
 
 
 <meta name="description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
-<meta name="keywords" content="Operation,Deployment,Distributed,todo">
+<meta name="keywords" content="Operation,todo,Deployment,Distributed">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ZooKeeper分布式配置踩坑记">
 <meta property="og:url" content="http://www.notee.cc/2017/11/02/Operation/deployment_zookeeper/index.html">
 <meta property="og:site_name" content="ycgambo の blog">
 <meta property="og:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-05T03:31:34.000Z">
+<meta property="og:updated_time" content="2017-11-05T04:48:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper分布式配置踩坑记">
 <meta name="twitter:description" content="ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.    ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同">
@@ -322,8 +322,7 @@
         <blockquote>
 <p>ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.  </p>
 </blockquote>
-<p>ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。</p>
-<p>换句话说，ZooKeeper：</p>
+<p>ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。换句话说，ZooKeeper：</p>
 <ul>
 <li>用来维护配置信息</li>
 <li>配置被管理在命名空间中</li>
@@ -347,8 +346,12 @@
 <!-- /MarkdownTOC -->
 <a id="more"></a>
 <blockquote>
-<p>转载请注明出处：www.notee.cc</p>
+<p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p>
 </blockquote>
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
+
 <p>运行zkServer start后，当前路径会生成zookeeper.out文件，其中保存了启动日志。</p>
 <p><a name="%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0"></a></p>
 <h2 id="坑1：主机数要求至少3台"><a href="#坑1：主机数要求至少3台" class="headerlink" title="坑1：主机数要求至少3台"></a>坑1：主机数要求至少3台</h2><p>ZooKeeper会选举一台机器作为leader，其它机器作为follower。<strong>如果希望F台机器挂掉时仍能提供服务，ZooKeeper集群至少需要2F+1台机器。</strong>如果有3台机器，可以挂1台；4台可以挂1台；5台可以挂2台；6台可以挂2台。</p>
@@ -400,11 +403,11 @@
           
             <a href="/tags/Operation/" rel="tag"># Operation</a>
           
+            <a href="/tags/todo/" rel="tag"># todo</a>
+          
             <a href="/tags/Deployment/" rel="tag"># Deployment</a>
           
             <a href="/tags/Distributed/" rel="tag"># Distributed</a>
-          
-            <a href="/tags/todo/" rel="tag"># todo</a>
           
         </div>
       

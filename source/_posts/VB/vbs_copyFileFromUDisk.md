@@ -19,7 +19,11 @@ tags:
 
 <!-- more -->
 
-> 转载请注明出处：www.notee.cc
+> 转载请注明出处：<a id="reproduction_link">www.notee.cc</a>
+
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
 
 <a name="%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"></a>
 ## 参数说明

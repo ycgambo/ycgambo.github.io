@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ycgambo の blog">
 <meta property="og:description" content="工厂模式把类的创建者和创建的类分离开来，负责产生正确的被观察对象，然后控制器将观察者绑定在需要被观察的对象上。采用这种组合的好处是类间的关系十分松散，可以灵活应对需求的变更：  需求功能的增减（如增加某个日志、增加某些监管） 需求类型的增减（如扩展某种类、新增一些类） 按照接口编程，控制器需要改动的代码很少  目录：  定义抽象request类型 定义观察者和被观察者类型 扩展request为ht">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-05T03:31:33.000Z">
+<meta property="og:updated_time" content="2017-11-05T04:49:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PHP观察者模式+工厂模式组合应用">
 <meta name="twitter:description" content="工厂模式把类的创建者和创建的类分离开来，负责产生正确的被观察对象，然后控制器将观察者绑定在需要被观察的对象上。采用这种组合的好处是类间的关系十分松散，可以灵活应对需求的变更：  需求功能的增减（如增加某个日志、增加某些监管） 需求类型的增减（如扩展某种类、新增一些类） 按照接口编程，控制器需要改动的代码很少  目录：  定义抽象request类型 定义观察者和被观察者类型 扩展request为ht">
@@ -340,8 +340,12 @@
 <!-- /MarkdownTOC -->
 <a id="more"></a>
 <blockquote>
-<p>转载请注明出处：www.notee.cc</p>
+<p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p>
 </blockquote>
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
+
 <p>下面用request类（被创建的类、被观察对象）和一些辅助类（观察者、工厂管理者、工厂）做说明。</p>
 <p><a name="%E5%AE%9A%E4%B9%89%E6%8A%BD%E8%B1%A1request%E7%B1%BB%E5%9E%8B"></a></p>
 <h2 id="定义抽象request类型"><a href="#定义抽象request类型" class="headerlink" title="定义抽象request类型"></a>定义抽象request类型</h2><p>request可能来自http，也可能来自app或者其他请求，采用<code>$_type</code>标明。</p>

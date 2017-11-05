@@ -29,7 +29,11 @@ tags:
 
 <!-- more -->
 
-> 转载请注明出处：www.notee.cc
+> 转载请注明出处：<a id="reproduction_link">www.notee.cc</a>
+
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
 
 下面用request类（被创建的类、被观察对象）和一些辅助类（观察者、工厂管理者、工厂）做说明。
 

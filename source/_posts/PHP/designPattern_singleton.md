@@ -25,7 +25,11 @@ tags:
 
 <!-- more -->
 
-> 转载请注明出处：www.notee.cc
+> 转载请注明出处：<a id="reproduction_link">www.notee.cc</a>
+
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
 
 <a name="%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8D%95%E4%BE%8B%E7%B1%BB"></a>
 ## 一个简单的单例类

@@ -11,9 +11,7 @@ tags:
 
 > ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.  
 
-ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。
-
-换句话说，ZooKeeper：
+ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名空间、提供分布式同步和组服务。换句话说，ZooKeeper：
 - 用来维护配置信息
 - 配置被管理在命名空间中
 - 可以扩展，提供分布式服务
@@ -37,7 +35,11 @@ ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名�
 
 <!-- more -->
 
-> 转载请注明出处：www.notee.cc
+> 转载请注明出处：<a id="reproduction_link">www.notee.cc</a>
+
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
 
 运行zkServer start后，当前路径会生成zookeeper.out文件，其中保存了启动日志。
 

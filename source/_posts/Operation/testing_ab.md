@@ -32,7 +32,11 @@ tags:
 
 <!-- more -->
 
-> 转载请注明出处：www.notee.cc
+> 转载请注明出处：<a id="reproduction_link">www.notee.cc</a>
+
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
 
 安装ab，ab命令在httpd-tools软件包中：
 
