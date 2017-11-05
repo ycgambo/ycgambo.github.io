@@ -60,11 +60,11 @@
     
       <category term="Operation" scheme="http://www.notee.cc/tags/Operation/"/>
     
+      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
+    
       <category term="Deployment" scheme="http://www.notee.cc/tags/Deployment/"/>
     
       <category term="Distributed" scheme="http://www.notee.cc/tags/Distributed/"/>
-    
-      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
     
   </entry>
   
@@ -108,9 +108,9 @@
     
       <category term="Operation" scheme="http://www.notee.cc/tags/Operation/"/>
     
-      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
-    
       <category term="Testing" scheme="http://www.notee.cc/tags/Testing/"/>
+    
+      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
     
   </entry>
   
