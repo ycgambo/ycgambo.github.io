@@ -19,6 +19,8 @@ tags:
 
 <!-- more -->
 
+> 转载请注明出处：www.notee.cc
+
 <a name="%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"></a>
 ## 参数说明
 

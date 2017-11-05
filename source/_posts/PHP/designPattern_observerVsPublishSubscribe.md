@@ -37,6 +37,8 @@ tags:
 
 <!-- more -->
 
+> 转载请注明出处：www.notee.cc
+
 <a name="%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F"></a>
 ## 观察者模式
 

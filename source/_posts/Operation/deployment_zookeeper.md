@@ -37,6 +37,8 @@ ZooKeeper是一个集中式服务。它可以维护配置信息、支持命名�
 
 <!-- more -->
 
+> 转载请注明出处：www.notee.cc
+
 运行zkServer start后，当前路径会生成zookeeper.out文件，其中保存了启动日志。
 
 <a name="%E5%9D%911%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%95%B0%E8%A6%81%E6%B1%82%E8%87%B3%E5%B0%913%E5%8F%B0"></a>

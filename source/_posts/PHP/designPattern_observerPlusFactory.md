@@ -29,6 +29,8 @@ tags:
 
 <!-- more -->
 
+> 转载请注明出处：www.notee.cc
+
 下面用request类（被创建的类、被观察对象）和一些辅助类（观察者、工厂管理者、工厂）做说明。
 
 <a name="%E5%AE%9A%E4%B9%89%E6%8A%BD%E8%B1%A1request%E7%B1%BB%E5%9E%8B"></a>

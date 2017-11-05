@@ -32,6 +32,8 @@ tags:
 
 <!-- more -->
 
+> 转载请注明出处：www.notee.cc
+
 安装ab，ab命令在httpd-tools软件包中：
 
     yum install httpd-tools
