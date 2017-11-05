@@ -1815,7 +1815,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #7aff71;
+  background: #dfa3c2;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3113,6 +3113,13 @@ pre .javascript .function {
     margin: 8px 0 0;
   }
 }
+.headband {
+  display: none;
+}
 .site-meta {
-  background: #458994 url("/menu_bg.png") no-repeat fixed;
+  background: url("/images/menu_bg.png") center no-repeat;
+  background-size: 100%;
+}
+.site-author-image {
+  border-radius: 50%;
 }
