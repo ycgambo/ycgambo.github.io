@@ -1,5 +1,5 @@
 ---
-title: Markdown头部Snippet
+title: 博文头部Markdown Snippet分享
 date: 2017/11/07 16:11:18
 categories: Markdown
 tags:
@@ -7,7 +7,7 @@ tags:
     - Snippet
 ---
 
-我的通用的博客头Snippet，实现了博文摘要、目录、转载链接等功能，利用一些Snippet工具就能很简单的创建博文开头。
+我的通用博客头部Snippet，实现了博文摘要、目录、转载链接等功能，利用Snippet工具就能很简单的创建博文开头。
 
 目录：
 <!-- MarkdownTOC -->
