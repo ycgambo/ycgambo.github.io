@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.notee.cc/"/>
-  <updated>2017-11-07T08:25:56.000Z</updated>
+  <updated>2017-11-07T09:12:47.000Z</updated>
   <id>http://www.notee.cc/</id>
   
   <author>
@@ -17,9 +17,40 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Markdown头部Snippet</title>
+    <link href="http://www.notee.cc/2017/11/07/Markdown/snippet_blogHead/"/>
+    <id>http://www.notee.cc/2017/11/07/Markdown/snippet_blogHead/</id>
+    <published>2017-11-07T08:11:18.000Z</published>
+    <updated>2017-11-07T09:12:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>我的通用的博客头Snippet，实现了博文摘要、目录、转载链接等功能，利用一些Snippet工具就能很简单的创建博文开头。</p><p>目录：<br><!-- MarkdownTOC --></p><ul><li><a href="#%E6%A0%BC%E5%BC%8F">格式</a></li><li><a href="#%E5%BA%94%E7%94%A8">应用</a></li><li><a href="#%E4%BE%8B%E5%AD%90">例子</a></li></ul><!-- /MarkdownTOC --><a id="more"></a><blockquote><p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p></blockquote><script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script><hr><p><a name="%E6%A0%BC%E5%BC%8F"></a></p><h2 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">title: </div><div class="line">date: </div><div class="line">categories: </div><div class="line">tags:</div><div class="line"><span class="code">    - </span></div><div class="line">---</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">目录：</div><div class="line">&lt;!-- MarkdownTOC --&gt;</div><div class="line"></div><div class="line">&lt;!-- /MarkdownTOC --&gt;</div><div class="line"></div><div class="line">&lt;!-- more --&gt;</div><div class="line"></div><div class="line"><span class="quote">&gt; 转载请注明出处：&lt;a id="reproduction_link"&gt;www.notee.cc&lt;/a&gt;</span></div><div class="line"></div><div class="line">&lt;script type="text/javascript"&gt;document.getElementById('reproduction<span class="emphasis">_link').innerHTML = window.location.href;document.getElementById('reproduction_</span>link').href = window.location.href;&lt;/script&gt;</div><div class="line"></div><div class="line">&lt;hr&gt;</div></pre></td></tr></table></figure><p><a name="%E5%BA%94%E7%94%A8"></a></p><h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">title: 文章标题</div><div class="line">date: 日期</div><div class="line">categories: 类目名</div><div class="line">tags:</div><div class="line"><span class="code">    - 一级标签</span></div><div class="line"><span class="code">    - 二级标签</span></div><div class="line"><span class="code">    - 等等</span></div><div class="line">---</div><div class="line"></div><div class="line">这里是博文摘要。</div><div class="line"></div><div class="line">目录：</div><div class="line">&lt;!-- MarkdownTOC --&gt;</div><div class="line">供SublimeText的MarkdownTOC插件使用，会在保存时自动更新目录结构。</div><div class="line">&lt;!-- /MarkdownTOC --&gt;</div><div class="line"></div><div class="line">&lt;!-- more --&gt; Hexo的Next主题具有折叠功能，这条语句下面的内容会被折叠。</div><div class="line"></div><div class="line">博文的转载链接。</div><div class="line"><span class="quote">&gt; 转载请注明出处：&lt;a id="reproduction_link"&gt;www.notee.cc&lt;/a&gt;</span></div><div class="line"></div><div class="line">自动为博文生成转载链接，免去了很多麻烦。注意上下都有换行，并且其中不能有换行，否则Markdown解析时会破坏脚本，使之不能工作。</div><div class="line">&lt;script type="text/javascript"&gt;document.getElementById('reproduction<span class="emphasis">_link').innerHTML = window.location.href;document.getElementById('reproduction_</span>link').href = window.location.href;&lt;/script&gt;</div><div class="line"></div><div class="line">&lt;hr&gt;  这里画了一条横线，下面的内容就是正文内容啦。</div></pre></td></tr></table></figure><p><a name="%E4%BE%8B%E5%AD%90"></a></p><h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>本文的Snippet修改后是这样的：</p><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">title: Markdown头部Snippet</div><div class="line">date: 2017/11/07 16:11:18</div><div class="line">categories: Markdown</div><div class="line">tags:</div><div class="line"><span class="code">    - Markdown</span></div><div class="line"><span class="code">    - Snippet</span></div><div class="line">---</div><div class="line"></div><div class="line">我的通用的博客头Snippet，实现了博文摘要、目录、转载链接等功能。</div><div class="line"></div><div class="line">目录：</div><div class="line">&lt;!-- MarkdownTOC --&gt;</div><div class="line"></div><div class="line"><span class="bullet">- </span>[<span class="string">格式</span>](<span class="link">#%E6%A0%BC%E5%BC%8F</span>)</div><div class="line"><span class="bullet">- </span>[<span class="string">应用</span>](<span class="link">#%E5%BA%94%E7%94%A8</span>)</div><div class="line"><span class="bullet">- </span>[<span class="string">例子</span>](<span class="link">#%E4%BE%8B%E5%AD%90</span>)</div><div class="line"></div><div class="line">&lt;!-- /MarkdownTOC --&gt;</div><div class="line"></div><div class="line">&lt;!-- more --&gt;</div><div class="line"></div><div class="line"><span class="quote">&gt; 转载请注明出处：&lt;a id="reproduction_link"&gt;www.notee.cc&lt;/a&gt;</span></div><div class="line"></div><div class="line">&lt;script type="text/javascript"&gt;document.getElementById('reproduction<span class="emphasis">_link').innerHTML = window.location.href;document.getElementById('reproduction_</span>link').href = window.location.href;&lt;/script&gt;</div><div class="line"></div><div class="line">&lt;hr&gt;</div></pre></td></tr></table></figure><ul><li>date是编写Alfred的workflow输出的</li><li>目录是SublimeText的Markdown插件自动生成的，并且加了锚点</li><li>转载声明在浏览器解析时会自动变成这边博文的地址</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我的通用的博客头Snippet，实现了博文摘要、目录、转载链接等功能，利用一些Snippet工具就能很简单的创建博文开头。&lt;/p&gt;
+&lt;p&gt;目录：&lt;br&gt;&lt;!-- MarkdownTOC --&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#%E6%A0%BC%E5%BC%8F&quot;&gt;格式&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#%E5%BA%94%E7%94%A8&quot;&gt;应用&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#%E4%BE%8B%E5%AD%90&quot;&gt;例子&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- /MarkdownTOC --&gt;
+    
+    </summary>
+    
+      <category term="Markdown" scheme="http://www.notee.cc/categories/Markdown/"/>
+    
+    
+      <category term="Markdown" scheme="http://www.notee.cc/tags/Markdown/"/>
+    
+      <category term="Snippet" scheme="http://www.notee.cc/tags/Snippet/"/>
+    
+  </entry>
+  
+  <entry>
     <title>不忘初心 方得始终</title>
-    <link href="http://www.notee.cc/2017/11/06/Essay/beMyself/"/>
-    <id>http://www.notee.cc/2017/11/06/Essay/beMyself/</id>
+    <link href="http://www.notee.cc/2017/11/06/Essay/feeling_beMyself/"/>
+    <id>http://www.notee.cc/2017/11/06/Essay/feeling_beMyself/</id>
     <published>2017-11-06T14:11:39.000Z</published>
     <updated>2017-11-07T08:25:56.000Z</updated>
     
