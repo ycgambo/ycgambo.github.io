@@ -8,7 +8,7 @@ tags:
     - Snippet
 ---
 
-我的通用博客头部Snippet，实现了博文摘要、目录、转载链接等功能，利用Snippet工具就能很简单的创建博文开头。
+我的通用博客头部Snippet，实现了博文摘要、目录、转载链接等功能，利用Snippet工具就能很简单的创建文章开头。
 
 目录：
 <!-- MarkdownTOC -->
@@ -93,19 +93,20 @@ tags:
 <a name="%E4%BE%8B%E5%AD%90"></a>
 ## 例子
 
-本文的Snippet修改后是这样的：
+**本文**的Snippet修改后是这样的：
 
 ```markdown
 ---
-title: Markdown头部Snippet
+title: 博文头部Markdown Snippet分享
 date: 2017/11/07 16:11:18
 categories: Markdown
 tags:
     - Markdown
+    - Blog
     - Snippet
 ---
 
-我的通用的博客头Snippet，实现了博文摘要、目录、转载链接等功能。
+我的通用博客头部Snippet，实现了博文摘要、目录、转载链接等功能，利用Snippet工具就能很简单的创建文章开头。
 
 目录：
 <!-- MarkdownTOC -->
@@ -126,6 +127,6 @@ tags:
 
 ```
 
-- date是编写Alfred的workflow输出的
-- 目录是SublimeText的Markdown插件自动生成的，并且加了锚点
+- date是由编写的Alfred workflow输出的
+- 目录是由SublimeText的Markdown插件更新的，并且在文中加了锚点
 - 转载声明在浏览器解析时会自动变成这边博文的地址
