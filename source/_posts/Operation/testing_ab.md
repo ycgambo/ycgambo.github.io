@@ -41,11 +41,11 @@ tags:
 
 安装ab，ab命令在httpd-tools软件包中：
 
-    yum install httpd-tools
+    $ yum install httpd-tools
 
 安装opcache：
 
-    yum install php70w-opcache
+    $ yum install php70w-opcache
 
 <a name="%E4%B8%8D%E4%BD%BF%E7%94%A8opcache%E7%BC%93%E5%AD%98"></a>
 ## 不使用opcache缓存

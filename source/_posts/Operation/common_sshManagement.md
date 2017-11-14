@@ -38,7 +38,7 @@ Enter file in which to save the key (~/.ssh/id_rsa):
 此时请键入合适的路径以及文件名，不要使用默认名称。我的命名方法是`git.用户名.仓库名`，如下：
 
 ```
-> ll ~/.ssh
+$ ll ~/.ssh
 -rw-r--r--  1 ycgambo  staff   469B Nov  5 14:03 config
 -rw-------  1 ycgambo  staff   1.6K Oct 29 17:02 git.ycgambo
 -rw-------  1 ycgambo  staff   1.6K Nov  5 14:02 git.ycgambo.hexo-theme-next
@@ -58,7 +58,7 @@ Enter file in which to save the key (~/.ssh/id_rsa):
 `HostName`都是`github.com`，此时通过`Host`来区分不同的仓库，然后加载相应的密钥(`IdentityFile`)。
 
 ```
-> cat ~/.ssh/config
+$ cat ~/.ssh/config
 
 # github的登录密钥
 Host github.com

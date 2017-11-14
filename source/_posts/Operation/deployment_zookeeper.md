@@ -71,7 +71,7 @@ myid文件应该放在zoo.cfg中dataDir下，值为zoo.cfg中server.id所对应�
 
 该命令查看java监听的端口，会显示客户端端口port_0和同步端口port_2，如果是leader，还会有port_1。对应zoo.cfg中`clientPort=port_0`、`server.x=host_x:port_1:port_2`。
 ```
-> netstat -anp |grep LISTEN|grep java
+$ netstat -anp |grep LISTEN|grep java
 tcp        0      0 0.0.0.0:port_0                0.0.0.0:*                   LISTEN      19641/java
 tcp        0      0 0.0.0.0:port_2                0.0.0.0:*                   LISTEN      19641/java
 ```

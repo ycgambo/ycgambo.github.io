@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PHP,Syntax," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="autoload将我们从require的痛苦中解救出来，但是简单的autoload是如何一步步构建起庞大的应用的呢？Composer作为PHP的一款优秀的依赖管理工具，又是如何进行自动加载的呢？本文以YII2下的Composer为例，解析Composer源码，一起看看Composer的autoload艺术。 目录：  __autoload spl_autoload_register Compose">
+<meta name="keywords" content="PHP,Syntax">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP 细数自动加载">
+<meta property="og:url" content="http://www.notee.cc/2017/11/14/PHP/syntax_autoloadCountOff/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="autoload将我们从require的痛苦中解救出来，但是简单的autoload是如何一步步构建起庞大的应用的呢？Composer作为PHP的一款优秀的依赖管理工具，又是如何进行自动加载的呢？本文以YII2下的Composer为例，解析Composer源码，一起看看Composer的autoload艺术。 目录：  __autoload spl_autoload_register Compose">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_autoloadCountOff/composer_classmap.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_autoloadCountOff/composer_psr4.png">
+<meta property="og:updated_time" content="2017-11-14T01:41:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP 细数自动加载">
+<meta name="twitter:description" content="autoload将我们从require的痛苦中解救出来，但是简单的autoload是如何一步步构建起庞大的应用的呢？Composer作为PHP的一款优秀的依赖管理工具，又是如何进行自动加载的呢？本文以YII2下的Composer为例，解析Composer源码，一起看看Composer的autoload艺术。 目录：  __autoload spl_autoload_register Compose">
+<meta name="twitter:image" content="http://www.notee.cc/images/PHP/syntax_autoloadCountOff/composer_classmap.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'WIJEEGLTET',
+      apiKey: 'f339fa5e6343a6284c47a18345c207b9',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/2017/11/14/PHP/syntax_autoloadCountOff/"/>
+
+
+
+
+
+  <title>PHP 细数自动加载 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"><br/><br/><br/></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/2017/11/14/PHP/syntax_autoloadCountOff/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PHP 细数自动加载</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T00:11:51+08:00">
+                2017-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PHP/" itemprop="url" rel="index">
+                    <span itemprop="name">PHP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/11/14/PHP/syntax_autoloadCountOff/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/11/14/PHP/syntax_autoloadCountOff/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
+          
+
+          
+          
+             <span id="/2017/11/14/PHP/syntax_autoloadCountOff/" class="leancloud_visitors" data-flag-title="PHP 细数自动加载">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>autoload将我们从require的痛苦中解救出来，但是简单的autoload是如何一步步构建起庞大的应用的呢？Composer作为PHP的一款优秀的依赖管理工具，又是如何进行自动加载的呢？本文以YII2下的Composer为例，解析Composer源码，一起看看Composer的autoload艺术。</p>
+<p>目录：<br><!-- MarkdownTOC --></p>
+<ul>
+<li><a href="#autoload">__autoload</a></li>
+<li><a href="#splautoloadregister">spl_autoload_register</a></li>
+<li><a href="#composer%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%BD%BD">Composer的自动加载</a><ul>
+<li><a href="#classmap%E6%98%A0%E5%B0%84">classMap映射</a></li>
+<li><a href="#psr-0-%E5%92%8C-psr-4">psr-0 和 psr-4</a></li>
+<li><a href="#static%E7%B1%BB%E5%9E%8B">static类型</a></li>
+<li><a href="#files%E7%B1%BB%E5%9E%8B%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6">files类型自动加载文件</a></li>
+</ul>
+</li>
+</ul>
+<!-- /MarkdownTOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<a id="reproduction_link">www.notee.cc</a></p>
+</blockquote>
+<script type="text/javascript">document.getElementById('reproduction_link').innerHTML = window.location.href;document.getElementById('reproduction_link').href = window.location.href;</script>
+
+<hr>
+
+<p><a name="autoload"></a></p>
+<h2 id="autoload"><a href="#autoload" class="headerlink" title="__autoload"></a>__autoload</h2><p>在很多PHP教材中，都采用<a href="http://php.net/manual/zh/function.autoload.php" target="_blank" rel="external">__autoload函数</a>讲解类的自动加载，举例如下：</p>
+<p>在<code>test.php</code>文件中定义<code>Test</code>类，该类在初始化时会输出一句话：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * test.php</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">echo</span> <span class="string">'hi, there'</span> . PHP_EOL;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在<code>index.php</code>文件中定义<code>__autoload</code>函数，在当前目录下搜索类的同名文件，然后包含该文件。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * index.php</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">__autoload</span><span class="params">($className)</span> </span>&#123;</div><div class="line">    $fileName = <span class="string">'./'</span> . strtolower($className) . <span class="string">'.php'</span>;</div><div class="line">    <span class="keyword">include_once</span>($fileName);</div><div class="line">&#125;</div><div class="line"></div><div class="line">$test = <span class="keyword">new</span> Test();</div></pre></td></tr></table></figure>
+<p>运行<code>index.php</code>文件，可以看到输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ php -f index.php</div><div class="line">hi, there</div></pre></td></tr></table></figure>
+<p>但是，<strong>__autoload函数在PHP 7.2.0中已经不赞成使用。</strong></p>
+<p>使用该方法的缺点是：<strong><code>__autoload</code>只可以定义一次</strong>。假如A的项目引用了B的代码，A和B采用两种<code>__autoload</code>，就会产生冲突，尤其是使用了很多插件的时候，合并<code>__autoload</code>会很麻烦。</p>
+<p><a name="splautoloadregister"></a></p>
+<h2 id="spl-autoload-register"><a href="#spl-autoload-register" class="headerlink" title="spl_autoload_register"></a>spl_autoload_register</h2><blockquote>
+<p>如果需要多条 autoload 函数，<a href="http://php.net/manual/zh/function.spl-autoload-register.php" target="_blank" rel="external">spl_autoload_register()</a> 满足了此类需求。 它实际上创建了 autoload 函数的队列，按定义时的顺序逐个执行。相比之下， __autoload() 只可以定义一次。</p>
+</blockquote>
+<p>在之前的基础上，新增一个文件<code>test2.class.php</code>：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * index2.class.php</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test2</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">echo</span> <span class="string">'hi, there, too'</span> . PHP_EOL;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>修改<code>index.php</code>文件，为<code>test2.class.php</code>建立加载函数：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * index.php</span></div><div class="line"><span class="comment"> */</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">autoloader_1</span><span class="params">($className)</span> </span>&#123;</div><div class="line">    $fileName = <span class="string">'./'</span> . strtolower($className) . <span class="string">'.php'</span>;</div><div class="line">    <span class="keyword">include_once</span>($fileName);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">autoloader_2</span><span class="params">($className)</span> </span>&#123;</div><div class="line">    $fileName = <span class="string">'./'</span> . strtolower($className) . <span class="string">'.class.php'</span>;</div><div class="line">    <span class="keyword">include_once</span>($fileName);</div><div class="line">&#125;</div><div class="line"></div><div class="line">spl_autoload_register(<span class="string">'autoloader_1'</span>);</div><div class="line">spl_autoload_register(<span class="string">'autoloader_2'</span>);</div><div class="line"></div><div class="line">$test = <span class="keyword">new</span> Test();</div><div class="line">$test2 = <span class="keyword">new</span> Test2();</div></pre></td></tr></table></figure>
+<p>运行<code>index.php</code>文件，有如下输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ php -f index.php</div><div class="line">hi, there</div><div class="line">PHP Warning:  include_once(./test2.php): failed to open stream: No such file or directory in /Users/ycgambo/Documents/test/php/index.php on line 9</div><div class="line">PHP Stack trace:</div><div class="line">PHP   1. &#123;main&#125;() /Users/ycgambo/Documents/test/php/index.php:0</div><div class="line">PHP   2. spl_autoload_call() /Users/ycgambo/Documents/test/php/index.php:21</div><div class="line">PHP   3. autoloader_1() /Users/ycgambo/Documents/test/php/index.php:0</div><div class="line">PHP Warning:  include_once(): Failed opening &apos;./test2.php&apos; for inclusion (include_path=&apos;.:&apos;) in /Users/ycgambo/Documents/test/php/index.php on line 9</div><div class="line">PHP Stack trace:</div><div class="line">PHP   1. &#123;main&#125;() /Users/ycgambo/Documents/test/php/index.php:0</div><div class="line">PHP   2. spl_autoload_call() /Users/ycgambo/Documents/test/php/index.php:21</div><div class="line">PHP   3. autoloader_1() /Users/ycgambo/Documents/test/php/index.php:0</div><div class="line">hi, there, too</div></pre></td></tr></table></figure>
+<p>通过第一行和最后一行的输出可知，PHP如期加载了两个类文件。在加载<code>Test2</code>类时，PHP按照加载函数注册的顺序，优先尝试搜索<code>test2.php</code>，但没有找到，所以报了<code>Warning</code>。</p>
+<p><a name="composer%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%BD%BD"></a></p>
+<h2 id="Composer的自动加载"><a href="#Composer的自动加载" class="headerlink" title="Composer的自动加载"></a>Composer的自动加载</h2><p>Composer作为PHP优秀的依赖管理工具，它的身影出现在许多著名框架中，因此有必要学习一下Composer是如何实现自动加载的。</p>
+<p><code>ComposerAutoloaderInit</code>是Composer的入口文件，主要保存了一个<code>ClassLoader</code>实例用来协助加载依赖：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> $loader;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该<code>ClassLoader</code>实例会在一开始就被初始化，然后注册<code>autoload</code>：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getLoader</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">        $loader-&gt;register(<span class="keyword">true</span>);</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>register</code>方法向<code>spl_autoload_register</code>函数注册了自身的<code>loadClass</code>：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">register</span><span class="params">($prepend = false)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        spl_autoload_register(<span class="keyword">array</span>(<span class="keyword">$this</span>, <span class="string">'loadClass'</span>), <span class="keyword">true</span>, $prepend);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>loadClass</code>方法用来加载文件。该方法先调用<code>findFile</code>方法寻找文件，再调用<code>includeFile</code>函数加载文件：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">loadClass</span><span class="params">($class)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> ($file = <span class="keyword">$this</span>-&gt;findFile($class)) &#123;</div><div class="line">            includeFile($file);</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findFile</span><span class="params">($class)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="comment">// ... 按照类名返回合适的文件名，具体代码下面会讲</span></div><div class="line">        </div><div class="line">        <span class="keyword">return</span> $file;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 隔离文件，防止加载的文件访问$this/self</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">includeFile</span><span class="params">($file)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">include</span> $file;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>了解了加载流程（如何注册<code>spl_autoload_register</code>），接下来了解一下这些类文件是如何保存以及被加载的（<code>spl_autoload_register</code>的加载机制）。</p>
+<p><a name="classmap%E6%98%A0%E5%B0%84"></a></p>
+<h3 id="classMap映射"><a href="#classMap映射" class="headerlink" title="classMap映射"></a>classMap映射</h3><p>classMap类型是一个数组，它保存了类名到文件名的映射，这份映射关系保存在<code>autoload_classmap.php</code>文件中，格式如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// $vendorDir = 'someDir';</span></div><div class="line"><span class="keyword">return</span> <span class="keyword">array</span>(</div><div class="line">    <span class="string">'File_Iterator'</span> =&gt; $vendorDir . <span class="string">'/phpunit/php-file-iterator/src/Iterator.php'</span>,</div><div class="line">    <span class="comment">// ...</span></div><div class="line">);</div></pre></td></tr></table></figure>
+<p><code>ComposerAutoloaderInit</code>在注册<code>ClassLoader</code>时，会读取<code>autoload_classmap.php</code>文件，<code>ClassLoader</code>将映射保存在自己的<code>classMap</code>中：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getLoader</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">        $classMap = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_classmap.php'</span>;</div><div class="line">        <span class="keyword">if</span> ($classMap) &#123;</div><div class="line">            $loader-&gt;addClassMap($classMap);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>ClassLoader</code>在加载时，会首先在这份映射中搜索：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findFile</span><span class="params">($class)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;classMap[$class])) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;classMap[$class];</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><a name="psr-0-%E5%92%8C-psr-4"></a></p>
+<h3 id="psr-0-和-psr-4"><a href="#psr-0-和-psr-4" class="headerlink" title="psr-0 和 psr-4"></a>psr-0 和 psr-4</h3><p>其实，<code>ClassLoader</code>的<code>classMap</code>中不止保存了<code>classMap</code>类型的映射，还保存了适合<code>psr-0</code>和<code>psr-4</code>两种自动加载规范的映射：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getLoader</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">        $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_namespaces.php'</span>;</div><div class="line">        <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">            $loader-&gt;set($namespace, $path);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_psr4.php'</span>;</div><div class="line">        <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">            $loader-&gt;setPsr4($namespace, $path);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        $classMap = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_classmap.php'</span>;</div><div class="line">        <span class="keyword">if</span> ($classMap) &#123;</div><div class="line">            $loader-&gt;addClassMap($classMap);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>与<code>classMap</code>不同的是，这两种规范定义的是命名空间的映射，可以将一个命名空间映射到一个目录，<code>spl_autoload_register</code>函数在解析命名空间下符合规范要求的类名时，可以自动解析到目录下对应的文件，因此可以不必为每一个类都指定对应的文件名。</p>
+<p><code>classMap</code>类型的映射，每一个类都映射到文件，繁琐的对应关系，但也比较直接：<br><img src="/images/PHP/syntax_autoloadCountOff/composer_classmap.png" alt="classMap类型"></p>
+<p><code>psr-4</code>类型的映射（<code>psr-0</code>与之类似），点到为止，十分简洁，但需要遵循规范：<br><img src="/images/PHP/syntax_autoloadCountOff/composer_psr4.png" alt="psr-4类型"></p>
+<p><a name="static%E7%B1%BB%E5%9E%8B"></a></p>
+<h3 id="static类型"><a href="#static类型" class="headerlink" title="static类型"></a>static类型</h3><p>先上代码，看一看static类型是在哪里引入的：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getLoader</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> !== <span class="keyword">self</span>::$loader) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">self</span>::$loader;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        spl_autoload_register(<span class="keyword">array</span>(<span class="string">'ComposerAutoloaderInit'</span>, <span class="string">'loadClassLoader'</span>), <span class="keyword">true</span>, <span class="keyword">true</span>);</div><div class="line">        <span class="keyword">self</span>::$loader = $loader = <span class="keyword">new</span> \Composer\Autoload\ClassLoader();</div><div class="line">        spl_autoload_unregister(<span class="keyword">array</span>(<span class="string">'ComposerAutoloaderInit'</span>, <span class="string">'loadClassLoader'</span>));</div><div class="line"></div><div class="line">        $useStaticLoader = PHP_VERSION_ID &gt;= <span class="number">50600</span> &amp;&amp; !defined(<span class="string">'HHVM_VERSION'</span>) &amp;&amp; (!function_exists(<span class="string">'zend_loader_file_encoded'</span>) || !zend_loader_file_encoded());</div><div class="line">        <span class="keyword">if</span> ($useStaticLoader) &#123;</div><div class="line">            <span class="keyword">require_once</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_static.php'</span>;</div><div class="line"></div><div class="line">            call_user_func(\Composer\Autoload\ComposerStaticInit::getInitializer($loader));</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_namespaces.php'</span>;</div><div class="line">            <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">                $loader-&gt;set($namespace, $path);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_psr4.php'</span>;</div><div class="line">            <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">                $loader-&gt;setPsr4($namespace, $path);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            $classMap = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_classmap.php'</span>;</div><div class="line">            <span class="keyword">if</span> ($classMap) &#123;</div><div class="line">                $loader-&gt;addClassMap($classMap);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>static静态类型和上面几种类型用<code>if-else</code>结构隔开，目的很明显，要么用<code>if</code>加载，要么用<code>else</code>加载，为什么要这么做呢？</p>
+<p>原来，如果php的版本大于5.6 ,composer会进行加载优化，减少大量映射的加载时间：</p>
+<blockquote>
+<p>Optimized the autoloader initialization using static loading on PHP 5.6 and above, this reduces the load time for large classmaps to almost nothing</p>
+</blockquote>
+<p>不同于上面简单定义的数组，<code>autoload_static.php</code>文件定义的是一个<code>ComposerStaticInit</code>类:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">namespace</span> <span class="title">Composer</span>\<span class="title">Autoload</span>;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerStaticInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> $files = <span class="keyword">array</span> (</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    );</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> $prefixLengthsPsr4 = <span class="keyword">array</span> (</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    );</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> $prefixDirsPsr4 = <span class="keyword">array</span> (</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    );</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> $prefixesPsr0 = <span class="keyword">array</span> (</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    );</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> $classMap = <span class="keyword">array</span> (</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    );</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInitializer</span><span class="params">(ClassLoader $loader)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>ComposerStaticInit</code>类保存了上面各种类型的映射的静态副本，此外还定义了一个初始化方法<code>getInitializer</code>。前面<code>ComposerAutoloaderInit</code>调用这个方法时，传入了一个<code>ClassLoader</code>：</p>
+<pre><code>call_user_func(\Composer\Autoload\ComposerStaticInit::getInitializer($loader));
+</code></pre><p>之后再在<code>getInitializer</code>方法中巧妙利用<code>Closure::bind</code>操作访问<code>ClassLoader</code>的私有变量，达到静态加载的目的：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerStaticInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInitializer</span><span class="params">(ClassLoader $loader)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">return</span> \Closure::bind(<span class="function"><span class="keyword">function</span> <span class="params">()</span> <span class="title">use</span> <span class="params">($loader)</span> </span>&#123;</div><div class="line">            $loader-&gt;prefixLengthsPsr4 = ComposerStaticInit::$prefixLengthsPsr4;</div><div class="line">            $loader-&gt;prefixDirsPsr4 = ComposerStaticInit::$prefixDirsPsr4;</div><div class="line">            $loader-&gt;prefixesPsr0 = ComposerStaticInit::$prefixesPsr0;</div><div class="line">            $loader-&gt;classMap = ComposerStaticInit::$classMap;</div><div class="line"></div><div class="line">        &#125;, <span class="keyword">null</span>, ClassLoader::class);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 这些变量在ClassLoader定义如下</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="comment">// PSR-4</span></div><div class="line">    <span class="keyword">private</span> $prefixLengthsPsr4 = <span class="keyword">array</span>();</div><div class="line">    <span class="keyword">private</span> $prefixDirsPsr4 = <span class="keyword">array</span>();</div><div class="line"></div><div class="line">    <span class="comment">// PSR-0</span></div><div class="line">    <span class="keyword">private</span> $prefixesPsr0 = <span class="keyword">array</span>();</div><div class="line"></div><div class="line">    <span class="keyword">private</span> $classMap = <span class="keyword">array</span>();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><a name="files%E7%B1%BB%E5%9E%8B%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6"></a></p>
+<h3 id="files类型自动加载文件"><a href="#files类型自动加载文件" class="headerlink" title="files类型自动加载文件"></a>files类型自动加载文件</h3><p>上面的几种类型都属于类的自动加载，files类型则是在<code>ClassLoader</code>注册好<code>loadClass</code>后就立即包含进所指定的文件：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ComposerAutoloaderInit</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getLoader</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> !== <span class="keyword">self</span>::$loader) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">self</span>::$loader;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        spl_autoload_register(<span class="keyword">array</span>(<span class="string">'ComposerAutoloaderInit'</span>, <span class="string">'loadClassLoader'</span>), <span class="keyword">true</span>, <span class="keyword">true</span>);</div><div class="line">        <span class="keyword">self</span>::$loader = $loader = <span class="keyword">new</span> \Composer\Autoload\ClassLoader();</div><div class="line">        spl_autoload_unregister(<span class="keyword">array</span>(<span class="string">'ComposerAutoloaderInit'</span>, <span class="string">'loadClassLoader'</span>));</div><div class="line"></div><div class="line">        $useStaticLoader = PHP_VERSION_ID &gt;= <span class="number">50600</span> &amp;&amp; !defined(<span class="string">'HHVM_VERSION'</span>) &amp;&amp; (!function_exists(<span class="string">'zend_loader_file_encoded'</span>) || !zend_loader_file_encoded());</div><div class="line">        <span class="keyword">if</span> ($useStaticLoader) &#123;</div><div class="line">            <span class="keyword">require_once</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_static.php'</span>;</div><div class="line"></div><div class="line">            call_user_func(\Composer\Autoload\ComposerStaticInit::getInitializer($loader));</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_namespaces.php'</span>;</div><div class="line">            <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">                $loader-&gt;set($namespace, $path);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            $map = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_psr4.php'</span>;</div><div class="line">            <span class="keyword">foreach</span> ($map <span class="keyword">as</span> $namespace =&gt; $path) &#123;</div><div class="line">                $loader-&gt;setPsr4($namespace, $path);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            $classMap = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_classmap.php'</span>;</div><div class="line">            <span class="keyword">if</span> ($classMap) &#123;</div><div class="line">                $loader-&gt;addClassMap($classMap);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        $loader-&gt;register(<span class="keyword">true</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> ($useStaticLoader) &#123;</div><div class="line">            $includeFiles = Composer\Autoload\ComposerStaticInit::$files;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            $includeFiles = <span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/autoload_files.php'</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">foreach</span> ($includeFiles <span class="keyword">as</span> $fileIdentifier =&gt; $file) &#123;</div><div class="line">            composerRequire($fileIdentifier, $file);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> $loader;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面已经是完整的<code>getLoader</code>方法了。</p>
+<p><code>autoload_files.php</code>文件格式如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// $vendorDir = 'someDir';</span></div><div class="line"><span class="keyword">return</span> <span class="keyword">array</span>(</div><div class="line">    <span class="string">'0e6d7bf4a5811bfa5cf40c5ccd6fae6a'</span> =&gt; $vendorDir . <span class="string">'/symfony/polyfill-mbstring/bootstrap.php'</span>,</div><div class="line">    <span class="string">'2cffec82183ee1cea088009cef9a6fc3'</span> =&gt; $vendorDir . <span class="string">'/ezyang/htmlpurifier/library/HTMLPurifier.composer.php'</span>,</div><div class="line">    <span class="comment">// ...</span></div><div class="line">);</div></pre></td></tr></table></figure>
+<p>至此，composer的自动加载已经基本介绍完毕。需要指出的是，<code>ComposerAutoloaderInit</code>和<code>ComposerStaticInit</code>其实是有SHA值的，我的如下：<code>ComposerAutoloaderInit863a9fe54c36c8e7444b35fbf849f660</code>、<code>ComposerStaticInit863a9fe54c36c8e7444b35fbf849f660</code>，文中为了方便将其删除。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Syntax/" rel="tag"># Syntax</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/10/PHP/extension_socket/" rel="next" title="PHP Socket">
+                <i class="fa fa-chevron-left"></i> PHP Socket
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="hypercomments_widget"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="weiqi.guo" />
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description">非知之艰 行之惟艰</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ycgambo" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:17816875364@163.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#autoload"><span class="nav-number">1.</span> <span class="nav-text">__autoload</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spl-autoload-register"><span class="nav-number">2.</span> <span class="nav-text">spl_autoload_register</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Composer的自动加载"><span class="nav-number">3.</span> <span class="nav-text">Composer的自动加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#classMap映射"><span class="nav-number">3.1.</span> <span class="nav-text">classMap映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#psr-0-和-psr-4"><span class="nav-number">3.2.</span> <span class="nav-text">psr-0 和 psr-4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#static类型"><span class="nav-number">3.3.</span> <span class="nav-text">static类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#files类型自动加载文件"><span class="nav-number">3.4.</span> <span class="nav-text">files类型自动加载文件</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 97390, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 97390, xid: "2017/11/14/PHP/syntax_autoloadCountOff/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/97390/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

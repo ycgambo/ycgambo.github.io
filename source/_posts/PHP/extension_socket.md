@@ -102,12 +102,12 @@ socket_close($sock);
 
 此时在服务端启动脚本：
 
-    > php -f socket_server.php
+    $ php -f socket_server.php
 
 然后用另一台机器作为客户端，请求通信：
 
 ```
-> telnet host port
+$ telnet host port
 Trying 119.28.24.83...
 Connected to hongkong.
 Escape character is '^]'.
