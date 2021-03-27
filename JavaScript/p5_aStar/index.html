@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="JavaScript,p5.js,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="利用p5.js演示A Star算法迷宫寻路。">
+<meta name="keywords" content="JavaScript,p5.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迷宫寻路">
+<meta property="og:url" content="http://www.notee.cc/JavaScript/p5_aStar/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="利用p5.js演示A Star算法迷宫寻路。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="迷宫寻路">
+<meta name="twitter:description" content="利用p5.js演示A Star算法迷宫寻路。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/JavaScript/p5_aStar/">
+
+
+
+
+
+  <title>迷宫寻路 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/JavaScript/p5_aStar/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">迷宫寻路</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-30T00:00:00+08:00">
+                2019-06-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/JavaScript/p5_aStar/" class="leancloud_visitors" data-flag-title="迷宫寻路">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>利用<code>p5.js</code>演示<code>A Star</code>算法迷宫寻路。</p>
+<a id="more"></a>
+<div id="p5Container" style="width: 100%;overflow: hidden;"><style type="text/css">.p5Canvas{margin: 0 auto;display: block !important;}</style><script src="https://cdn.jsdelivr.net/npm/p5@0.7.1/lib/p5.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/ismobilejs@0.5.1/dist/isMobile.min.js"></script></div>
+<script>
+function Node(p5, x, y, size) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.type = 0;
+    this.fill = ''
+    this.fill_blinked = ''
+    this.$ = p5
+    this.parent = null // type of Node
+    this.f = 0
+    this.g = 0
+}
+Node.prototype.refresh = function (fill = '') {
+    switch (this.type) {
+        case 0: // cell
+            this.fill = '#EBEEF5'
+            break
+        case 1: // entrance
+            this.fill = '#409EFF'
+            break
+        case 2: // exit
+            this.fill = '#67C23A'
+            break
+        case 3: // wall
+            this.fill = '#222222'
+            break
+        case 4: // frontier
+            this.fill = '#F8C9DB'
+            break
+    }
+    if (fill) {
+        this.fill = fill
+    }
+    this.$.fill(this.fill)
+    this.$.rect(this.x * this.size, this.y * this.size, this.size, this.size)
+}
+Node.prototype.init = function ($) {
+    this.$ = $
+    this.type = 0
+}
+Node.prototype.setAsCell = function () {
+    this.type = 0
+    this.refresh()
+}
+Node.prototype.setAsEntrance = function () {
+    this.type = 1
+    this.refresh()
+}
+Node.prototype.setAsExit = function () {
+    this.type = 2
+    this.refresh()
+}
+Node.prototype.setAsWall = function () {
+    this.type = 3
+    this.refresh()
+}
+Node.prototype.setAsFrontier = function () {
+    this.type = 4
+    this.refresh()
+}
+Node.prototype.setAsOpen = function () {
+    this.refresh('#409EFF')
+}
+Node.prototype.setAsClosed = function () {
+    this.refresh('#F8C9DB')
+}
+// 调用两次可以实现闪烁效果
+Node.prototype.blink = function () {
+    if (this.fill_blinked != '') {
+        this.fill = this.fill_blinked
+        this.fill_blinked = ''
+    } else {
+        this.fill_blinked = this.fill
+        this.fill = '#F94383'
+    }
+    this.refresh(this.fill)
+}
+Node.prototype.isBlinking = function () {
+    return this.fill_blinked != ''
+}
+
+function sketch($) { // 画板
+    var nodes = [] // 节点矩阵
+    var nodeList = [] // 节点列表
+    var size = 49 // 矩阵大小，奇数（奇数节点是通道，偶数节点是墙）
+    var nodeSize = 10 // 节点方块大小
+    var entranceNode = null // 入口节点
+    var exitNode = null // 出口节点
+    var cells = [] // 矩阵搜索映射，0是墙，1是通道
+    var frontiers = [] // 待搜索节点
+    var finished = 0 // 演示结束
+    var blinking = null // 闪烁中的节点
+    var trying = null // 尝试中的节点
+
+    var openList = []
+    var closedList = []
+
+    $.setup = function () {
+        if (isMobile.any) { // 手机兼容性
+            size = 39
+            nodeSize = 6
+        }
+
+        $.createCanvas(size * nodeSize, size * nodeSize);
+        $.noStroke();
+        // 初始化节点矩阵
+        for (i = 0; i < size; i++) {
+            nodes[i] = [];
+            for (j = 0; j < size; j++) {
+                node = new Node($, i, j, nodeSize);
+                nodes[i][j] = node
+                nodeList.push(node)
+            }
+        }
+
+        generateMaze() // generate maze and then select both entrance and exit out
+
+        // put the starting node on the open list (you can leave its f at zero)
+        openList.push(entranceNode)
+    }
+    
+    var sleep = 0
+    var sleepTime = 50
+    $.draw = function () {
+        if (sleepTime) { // 减慢程序速度，并逐渐缩短间隔
+            if (sleep++ < sleepTime) return
+            sleep = 0
+            sleepTime -= 5
+        }
+        if (finished || !openList.length) {
+            console.info('Done')
+            console.info(exitNode)
+            $.noLoop()
+        }
+        if (blinking) { // 将闪烁过的节点恢复原来的状态
+            blinking.blink()
+            blinking = null
+            refreshNodes()
+            return
+        }
+
+        // a) find the node with the least f on the open list, call it "q"
+        // b) pop q off the open list
+        // c) generate q's successors and set their parents to q
+        // d) for each successor
+        //     i) if successor is the goal, stop search
+        //     successor.g = q.g + distance between successor and q
+        //     successor.h = distance from goal to successor 
+        //     successor.f = successor.g + successor.h
+
+        //     ii) if a node with the same position as 
+        //     successor is in the OPEN list which has a 
+        //     lower f than successor, skip this successor
+
+        //     iii) if a node with the same position as 
+        //     successor is in the CLOSED list which has
+        //     a lower f than successor, skip this successor
+        //     otherwise, add the node to the open list
+        // end (for loop)
+        // e) push q on the closed list
+        trying = q = _.minBy(openList, n => n.f)
+        _.remove(openList, n => _.isEqual(n, q))
+        getNeighbors(q.x, q.y).forEach(function (successor) {
+            if (finished) return
+            successor = nodes[successor[0]][successor[1]]
+            if (successor.x == exitNode.x && successor.y == exitNode.y) {
+                nodes[successor.x][successor.y].parent = nodes[q.x][q.y]
+                trying = exitNode
+                finished = 1
+            } else {
+                successor.g = q.g + 1
+                h = Math.abs(successor.x - exitNode.x) + Math.abs(successor.y - exitNode.y) // Manhattan Distance
+                successor.f = successor.g + h
+                if (_.filter(openList, n => n.x == successor.x && n.y == successor.y && n.f < successor.f).length) return
+                if (_.filter(closedList, n => n.x == successor.x && n.y == successor.y).length) return
+                openList.push(successor)
+                nodes[successor.x][successor.y].parent = nodes[q.x][q.y]
+            }
+        })
+        closedList.push(q)
+
+        blinking = nodes[q.x][q.y]
+        blinking.blink()
+    }
+
+    generateMaze = function () {
+        // 初始化搜索映射
+        for(i = 0; i < size; i++) {
+            cells[i] = new Array(size).fill(0)
+        }
+        // 随机确定开始搜索的节点
+        start = [Math.floor(Math.random() * (size - 1) / 2) * 2, Math.floor(Math.random() * (size - 1) / 2) * 2]
+        cells[start[0]][start[1]] = 1
+
+        frontiers = getFrontiers(start[0], start[1])
+        while(frontiers.length) {
+            frontier = frontiers.splice(Math.floor(Math.random() * frontiers.length), 1).pop(); // 随机选取一个待搜索节点
+            cells[frontier[0]][frontier[1]] = 1 // 将其标记为通道
+            inners = getInners(frontier[0], frontier[1])
+            if (inners) {
+                inner = inners.splice(Math.floor(Math.random() * inners.length), 1).pop();
+                cells[(frontier[0] + inner[0])/2][(frontier[1] + inner[1])/2] = 1 // 将分隔该节点和它的某一个已搜索节点的墙给去掉
+                frontiers.push(...getFrontiers(frontier[0], frontier[1])) // 将它相邻的待搜索节点加入待搜索列表中
+                frontiers = _.uniqWith(frontiers, _.isEqual) // 给待搜索列表去重
+            }
+        }
+
+        // 随机确定入口和出口
+        entranceNode = nodes[0][Math.floor(Math.random() * (size - 1) / 2) * 2]
+        exitNode = nodes[size - 1][Math.floor(Math.random() * (size - 1) / 2) * 2]
+
+        refreshNodes()
+    }
+
+    // 重新渲染节点矩阵
+    refreshNodes = function () {
+        nodeList.forEach((node) => {
+            if (frontiers.length && _.find(frontiers, i => _.isEqual(i, [node.x, node.y]))) {
+                node.setAsFrontier()
+            } else if (cells[node.x][node.y] == 1) {
+                node.setAsCell()
+            } else if (cells[node.x][node.y] == 0) {
+                node.setAsWall()
+            } else {
+                console.error('unexpect node type')
+            }
+        })
+        openList.forEach((node) => {
+            node.setAsOpen()
+        })
+        closedList.forEach((node) => {
+            node.setAsClosed()
+        })
+        entranceNode.setAsEntrance()
+        exitNode.setAsExit()
+        refreshPath()
+    }
+
+    // 重新渲染搜索路径
+    refreshPath = function() {
+        if (trying) {
+            to = trying
+            while (from = to.parent) {
+                nodes[(from.x + to.x)/2][(from.y + to.y)/2].setAsClosed()
+                to = from
+            }
+        }
+    }
+
+    // 获取坐标下的邻居节点
+    getNeighbors = function (x, y) {
+        if (x%2 || y%2) console.error(x, y, 'this is not a cell')
+        rtn = []
+        if (x > 1 && cells[x - 1][y] == 1) rtn.push([x - 2, y])
+        if (y > 1 && cells[x][y - 1] == 1) rtn.push([x, y - 2])
+        if (x < size - 1 && cells[x + 1][y] == 1) rtn.push([x + 2, y])
+        if (y < size - 1 && cells[x][y + 1] == 1) rtn.push([x, y + 2])
+        return rtn
+    }
+
+    // 获取坐标下待搜索的邻居节点
+    getFrontiers = function (x, y) {
+        if (x%2 || y%2) console.error(x, y, 'this is not a cell')
+        rtn = []
+        if (x > 1 && cells[x - 2][y] == 0) rtn.push([x - 2, y])
+        if (y > 1 && cells[x][y - 2] == 0) rtn.push([x, y - 2])
+        if (x < size - 1 && cells[x + 2][y] == 0) rtn.push([x + 2, y])
+        if (y < size - 1 && cells[x][y + 2] == 0) rtn.push([x, y + 2])
+        return rtn
+    }
+    // 获取坐标下已搜索的邻居节点
+    getInners = function (x, y) {
+        if (x%2 || y%2) console.error(x, y, 'this is not a cell')
+        inners = []
+        if (x > 1 && cells[x - 2][y] == 1) inners.push([x - 2, y])
+        if (y > 1 && cells[x][y - 2] == 1) inners.push([x, y - 2])
+        if (x < size - 1 && cells[x + 2][y] == 1) inners.push([x + 2, y])
+        if (y < size - 1 && cells[x][y + 2] == 1) inners.push([x, y + 2])
+        return inners;
+    }
+};
+
+new p5(sketch, 'p5Container');
+
+</script>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/p5-js/" rel="tag"># p5.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/JavaScript/p5_maze/" rel="next" title="迷宫生成">
+                <i class="fa fa-chevron-left"></i> 迷宫生成
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/JavaScript/p5_evil/" rel="prev" title="善恶游戏">
+                善恶游戏 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = '迷宫寻路'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="syntax,Oops!,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="今天逛Laruence的博客，看到一篇博文：  点了一下点这里，浏览器下载了一个文件，打开是一份相同的代码： 1&amp;lt;?php /*  @author: laruence&amp;lt;laruence.yahoo.com.cn&amp;gt;  */ $___=&quot;00001000000900000900007400011700011500011600003200007900011000010100003200">
+<meta name="keywords" content="syntax,Oops!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP 你跟我说左手代码右手诗？">
+<meta property="og:url" content="http://www.notee.cc/PHP/syntax_CleanItUp/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="今天逛Laruence的博客，看到一篇博文：  点了一下点这里，浏览器下载了一个文件，打开是一份相同的代码： 1&amp;lt;?php /*  @author: laruence&amp;lt;laruence.yahoo.com.cn&amp;gt;  */ $___=&quot;00001000000900000900007400011700011500011600003200007900011000010100003200">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/laruence_boke_screen_shot.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/after_format.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/rename_underline.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/rename_var_6.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/unpack.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/show_func.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/delete_var.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/restructure.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/delete_length_var.png">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/change_start_var.png">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.047Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP 你跟我说左手代码右手诗？">
+<meta name="twitter:description" content="今天逛Laruence的博客，看到一篇博文：  点了一下点这里，浏览器下载了一个文件，打开是一份相同的代码： 1&amp;lt;?php /*  @author: laruence&amp;lt;laruence.yahoo.com.cn&amp;gt;  */ $___=&quot;00001000000900000900007400011700011500011600003200007900011000010100003200">
+<meta name="twitter:image" content="http://www.notee.cc/images/PHP/syntax_CleanItUp/laruence_boke_screen_shot.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/syntax_CleanItUp/">
+
+
+
+
+
+  <title>PHP 你跟我说左手代码右手诗？ | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/syntax_CleanItUp/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP 你跟我说左手代码右手诗？</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-22T00:00:00+08:00">
+                2017-11-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/syntax_CleanItUp/" class="leancloud_visitors" data-flag-title="PHP 你跟我说左手代码右手诗？">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天逛<a href="http://www.laruence.com/2009/01/07/656.html" target="_blank" rel="noopener">Laruence的博客</a>，看到一篇博文：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/laruence_boke_screen_shot.png" alt="Boke Screen Shot"></p>
+<p>点了一下<code>点这里</code>，浏览器下载了一个文件，打开是一份相同的代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="comment">/*  <span class="doctag">@author</span>: laruence&lt;laruence.yahoo.com.cn&gt;  */</span> $___=<span class="string">"000010000009000009000074000117000115000116000032000079000110000101000032000076000097000115000116000032000068000097000110000099000101000032000010000074000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000046000046000046000046000111000104000032000098000097000098000121000046000046000046000106000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000032000010000010000087000101000032000109000101000101000116000032000105000110000032000116000104000101000032000110000105000103000104000116000032000105000110000032000116000104000101000032000083000112000097000110000105000115000104000032000099000097000102000195000169000032000010000073000032000108000111000111000107000032000105000110000032000121000111000117000114000032000101000121000101000115000032000106000117000115000116000032000100000111000110000039000039000116000032000107000110000111000119000032000119000104000097000116000032000116000111000032000115000097000121000032000010000073000116000032000102000101000101000108000115000032000108000105000107000101000032000073000039000039000109000032000100000114000111000119000110000105000110000103000032000105000110000032000115000097000108000116000121000032000119000097000116000101000114000032000010000065000032000102000101000119000032000104000111000117000114000115000032000108000101000102000116000032000116000105000108000108000032000116000104000101000032000115000117000110000039000039000115000032000103000111000110000110000097000032000114000105000115000101000032000010000116000111000109000111000114000114000111000119000032000119000105000108000108000032000099000111000109000101000032000097000110000032000105000116000039000039000115000032000116000105000109000101000032000116000111000032000114000101000097000108000105000122000101000032000010000111000117000114000032000108000111000118000101000032000104000097000115000032000102000105000110000105000115000104000101000100000032000102000111000114000101000118000101000114000032000010000010000104000111000119000032000073000032000119000105000115000104000032000116000111000032000099000111000109000101000032000119000105000116000104000032000121000111000117000032000040000119000105000115000104000032000116000111000032000099000111000109000101000032000119000105000116000104000032000121000111000117000041000032000010000104000111000119000032000073000032000119000105000115000104000032000119000101000032000109000097000107000101000032000105000116000032000116000104000114000111000117000103000104000032000010000010000074000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000032000010000098000101000102000111000114000101000032000119000101000032000115000097000121000032000103000111000111000100000098000121000101000032000010000119000104000101000110000032000119000101000032000115000119000097000121000032000097000110000100000032000116000117000114000110000032000114000111000117000110000100000032000097000110000100000032000114000111000117000110000100000032000097000110000100000032000114000111000117000110000100000032000010000105000116000039000039000115000032000108000105000107000101000032000116000104000101000032000102000105000114000115000116000032000116000105000109000101000032000010000074000117000115000116000032000111000110000101000032000109000111000114000101000032000099000104000097000110000099000101000032000010000104000111000108000100000032000109000101000032000116000105000103000104000116000032000097000110000100000032000107000101000101000112000032000109000101000032000119000097000114000109000032000010000099000097000117000115000101000032000116000104000101000032000110000105000103000104000116000032000105000115000032000103000101000116000116000105000110000103000032000099000111000108000100000032000010000097000110000100000032000073000032000100000111000110000039000039000116000032000107000110000111000119000032000119000104000101000114000101000032000073000032000098000101000108000111000110000103000032000010000074000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000032000010000010000084000104000101000032000119000105000110000101000032000097000110000100000032000116000104000101000032000108000105000103000104000116000115000032000097000110000100000032000116000104000101000032000083000112000097000110000105000115000104000032000103000117000105000116000097000114000032000010000073000039000039000108000108000032000110000101000118000101000114000032000102000111000114000103000101000116000032000104000111000119000032000114000111000109000097000110000116000105000099000032000116000104000101000121000032000097000114000101000032000010000098000117000116000032000073000032000107000110000111000119000044000032000116000111000109000111000114000114000111000119000032000073000039000039000108000108000032000108000111000115000101000032000116000104000101000032000111000110000101000032000073000032000108000111000118000101000032000010000084000104000101000114000101000039000039000115000032000110000111000032000119000097000121000032000116000111000032000099000111000109000101000032000119000105000116000104000032000121000111000117000032000010000105000116000039000039000115000032000116000104000101000032000111000110000108000121000032000119000097000121000032000116000111000032000100000111000032000010000010000074000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000044000032000106000117000115000116000032000111000110000101000032000109000111000114000101000032000099000104000097000110000099000101000044000032000106000117000115000116000032000111000110000101000032000108000097000115000116000032000100000097000110000099000101000010000010000009000009000009000009000009000009000009000009000045000045000045000084000104000105000115000032000083000099000114000105000112000116000032000105000115000032000106000117000115000116000032000102000111000114000032000073000079000080000067000067000032000010000009000009000009000009000009000009000009000009000009000009000009000108000097000114000117000101000110000099000101000032000050000048000048000057000046000048000049000046000048000055"</span>; $_______=<span class="string">"\x70\x61\x63\x6b"</span>;$________=$_______(<span class="string">"\x63\x36"</span>,<span class="number">115</span>,<span class="number">116</span>,<span class="number">114</span>,<span class="number">108</span>,<span class="number">101</span>,<span class="number">110</span>);$_=$________($________);$__________=$_______(<span class="string">"\x63\x36"</span>,<span class="number">115</span>,<span class="number">117</span>,<span class="number">98</span>,<span class="number">115</span>,<span class="number">116</span>,<span class="number">114</span>);$_________=$_______(<span class="string">"\x63\x36"</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">116</span>,<span class="number">118</span>,<span class="number">97</span>,<span class="number">108</span>);$________($________);$__=$_______(<span class="string">"\x63\x36"</span>,<span class="number">111</span>,<span class="number">114</span>,<span class="number">100</span>,<span class="number">99</span>,<span class="number">104</span>,<span class="number">114</span>);$___________=$_______(<span class="string">"\x63\x35"</span>,<span class="number">119</span>,<span class="number">104</span>,<span class="number">105</span>,<span class="number">108</span>,<span class="number">101</span>);<span class="keyword">while</span>($____=$__________($___,$_______=$_________($_______),$_))&#123;$_____=$__________($__,<span class="number">3</span>,<span class="number">3</span>);<span class="keyword">echo</span>$_____($_________($____));<span class="keyword">while</span>($_--)&#123;$_______++;&#125;$_=$________($________);&#125;<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>很是好奇，难道这串数字可以实现下载文件？于是分析了一下这串代码。</p>
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<p>先把代码拿到IDE里格式化一下，看来代码并不复杂：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/after_format.png" alt="After Format"></p>
+<p>这么一大串下划线变量，从长到短先给他们起个名字吧，顺便把这些十六进制转换一下：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/rename_underline.png" alt="Rename Underline"></p>
+<p>很明显，<code>$str_6</code>代表了字符串<code>pack</code>，把函数调用处的<code>$str_6</code>都替换成<code>pack</code>，其它地方的暂时重新命名为<code>$str_pack</code>：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/rename_var_6.png" alt="Rename Underline"></p>
+<p><a href="http://php.net/manual/zh/function.pack.php" target="_blank" rel="noopener"><code>pack</code>函数</a>将其它参数作为二进制字符串打包成给定的格式，<code>c6</code>代表了6个带符号字符类型。没什么特别的，这些<code>pack</code>函数可以换成字符串了：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/unpack.png" alt="Unpack"></p>
+<p>同样道理，把存在函数调用的地方换成对应的函数，顺便把没用的<code>$var_7($var_7);</code>和<code>$var_9_ = &quot;while&quot;;</code>两行删掉：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/show_func.png" alt="Show Func"></p>
+<p>再把没用的变量<code>$val_8</code>和<code>$val_9</code>删掉；<code>$val_7</code>只在倒数第二行用到，推出<code>$var_1</code>为6，并且值一直没有变化，也可以删了；<code>$var_2</code>同理，推出<code>$var_5</code>为<code>chr</code>。然后为剩余的变量重命名：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/delete_var.png" alt="Delete Var"></p>
+<p>整理一下代码结构，做适当的重命名：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/restructure.png" alt="Restructure"></p>
+<p>观察<code>$length</code>，做如下重构：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/delete_length_var.png" alt="Delete Length Var"></p>
+<p>观察<code>$start</code>，做如下重构：</p>
+<p><img src="/images/PHP/syntax_CleanItUp/change_start_var.png" alt="Change Start Var"></p>
+<p>这时代码就很清楚了，每次从<code>$var_3</code>里读6个字符，转换成数字，再转换为字符。</p>
+<p>所以这串代码里根本没有下载逻辑！点击下载的功能其实是服务器做的T_T，本来还以为很Hack呢T_T</p>
+<p>既然都到这里了，运行一下代码看一下输出吧：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">		Just One Last Dance</span><br><span class="line">Just one last dance....oh baby...just one last dance</span><br><span class="line"></span><br><span class="line">We meet in the night in the Spanish café</span><br><span class="line">I look in your eyes just don&apos;&apos;t know what to say</span><br><span class="line">It feels like I&apos;&apos;m drowning in salty water</span><br><span class="line">A few hours left till the sun&apos;&apos;s gonna rise</span><br><span class="line">tomorrow will come an it&apos;&apos;s time to realize</span><br><span class="line">our love has finished forever</span><br><span class="line"></span><br><span class="line">how I wish to come with you (wish to come with you)</span><br><span class="line">how I wish we make it through</span><br><span class="line"></span><br><span class="line">Just one last dance</span><br><span class="line">before we say goodbye</span><br><span class="line">when we sway and turn round and round and round</span><br><span class="line">it&apos;&apos;s like the first time</span><br><span class="line">Just one more chance</span><br><span class="line">hold me tight and keep me warm</span><br><span class="line">cause the night is getting cold</span><br><span class="line">and I don&apos;&apos;t know where I belong</span><br><span class="line">Just one last dance</span><br><span class="line"></span><br><span class="line">The wine and the lights and the Spanish guitar</span><br><span class="line">I&apos;&apos;ll never forget how romantic they are</span><br><span class="line">but I know, tomorrow I&apos;&apos;ll lose the one I love</span><br><span class="line">There&apos;&apos;s no way to come with you</span><br><span class="line">it&apos;&apos;s the only way to do</span><br><span class="line"></span><br><span class="line">Just one last dance, just one more chance, just one last dance</span><br><span class="line"></span><br><span class="line">								---This Script is just for IOPCC</span><br><span class="line">											laruence 2009.01.07</span><br></pre></td></tr></table></figure>
+<p>一首诗，我不知为何竟然笑了… <code>I''ll never forget how romantic you are</code></p>
+<p>裤子都脱了，你跟我说左手代码右手诗？</p>
+<p>我不信，难道是我解析时不小心删掉了重要的逻辑？于是运行下载来的源码，一样的输出。</p>
+<p>PHP毕竟还是脚本语言啊。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/syntax/" rel="tag"># syntax</a>
+          
+            <a href="/tags/Oops/" rel="tag"># Oops!</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/syntax_returnOfAssignment/" rel="next" title="PHP 赋值运算的返回值">
+                <i class="fa fa-chevron-left"></i> PHP 赋值运算的返回值
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/syntax_preg/" rel="prev" title="PHP 正则操作笔记">
+                PHP 正则操作笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = 'PHP 你跟我说左手代码右手诗？'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,Zend Engine,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="有了op_array，接下来就是zend引擎的解释执行了。 目录：   程序流 zend_execute_data zend_vm_stack_push_call_frame i_init_execute_data zend_execute_ex">
+<meta name="keywords" content="PHP,Zend Engine">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP代码的一生（四）zend_execute">
+<meta property="og:url" content="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_4/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="有了op_array，接下来就是zend引擎的解释执行了。 目录：   程序流 zend_execute_data zend_vm_stack_push_call_frame i_init_execute_data zend_execute_ex">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.044Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP代码的一生（四）zend_execute">
+<meta name="twitter:description" content="有了op_array，接下来就是zend引擎的解释执行了。 目录：   程序流 zend_execute_data zend_vm_stack_push_call_frame i_init_execute_data zend_execute_ex">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_4/">
+
+
+
+
+
+  <title>PHP代码的一生（四）zend_execute | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_4/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP代码的一生（四）zend_execute</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-16T00:00:00+08:00">
+                2018-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/engine_general_lifetime_of_php_code_4/" class="leancloud_visitors" data-flag-title="PHP代码的一生（四）zend_execute">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>有了<code>op_array</code>，接下来就是zend引擎的解释执行了。</p>
+<p>目录：</p>
+<!-- TOC depthFrom:1 depthTo:3 insertAnchor:true orderedList:false withLinks:true -->
+<ul>
+<li><a href="#%E7%A8%8B%E5%BA%8F%E6%B5%81">程序流</a></li>
+<li><a href="#zend_execute_data">zend_execute_data</a></li>
+<li><a href="#zend_vm_stack_push_call_frame">zend_vm_stack_push_call_frame</a></li>
+<li><a href="#i_init_execute_data">i_init_execute_data</a></li>
+<li><a href="#zend_execute_ex">zend_execute_ex</a></li>
+</ul>
+<!-- /TOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<blockquote>
+<p>代码是PHP7.1.16的官方release版本 <a href="https://github.com/php/php-src/tree/PHP-7.1.16" target="_blank" rel="noopener">下载</a></p>
+</blockquote>
+<p><a id="markdown-程序流" name="程序流"></a></p>
+<h2 id="程序流"><a class="markdownIt-Anchor" href="#程序流"></a> 程序流</h2>
+<p><code>Zend/zend_vm_execute.h:457</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="keyword">void</span> <span class="title">zend_execute</span><span class="params">(zend_op_array *op_array, zval *return_value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_execute_data *execute_data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (EG(exception) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    execute_data = zend_vm_stack_push_call_frame(ZEND_CALL_TOP_CODE | ZEND_CALL_HAS_SYMBOL_TABLE,</span><br><span class="line">        (zend_function*)op_array, <span class="number">0</span>, zend_get_called_scope(EG(current_execute_data)), zend_get_this_object(EG(current_execute_data)));</span><br><span class="line">    <span class="keyword">if</span> (EG(current_execute_data)) &#123;</span><br><span class="line">        execute_data-&gt;symbol_table = zend_rebuild_symbol_table();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        execute_data-&gt;symbol_table = &amp;EG(symbol_table);</span><br><span class="line">    &#125;</span><br><span class="line">    EX(prev_execute_data) = EG(current_execute_data);</span><br><span class="line">    i_init_execute_data(execute_data, op_array, return_value);</span><br><span class="line">    zend_execute_ex(execute_data);</span><br><span class="line">    zend_vm_stack_free_call_frame(execute_data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-zend_execute_data" name="zend_execute_data"></a></p>
+<h2 id="zend_execute_data"><a class="markdownIt-Anchor" href="#zend_execute_data"></a> zend_execute_data</h2>
+<p>在看具体函数之前，先了解一下<code>zend_execute_data</code>。</p>
+<p><code>Zend/zend_types.h:82</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">zend_execute_data</span>    <span class="title">zend_execute_data</span>;</span></span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_compile.h:449</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_execute_data</span> &#123;</span></span><br><span class="line">    <span class="keyword">const</span> zend_op       *opline;           <span class="comment">/* executed opline                */</span></span><br><span class="line">    zend_execute_data   *call;             <span class="comment">/* current call                   */</span></span><br><span class="line">    zval                *return_value;</span><br><span class="line">    zend_function       *func;             <span class="comment">/* executed function              */</span></span><br><span class="line">    zval                 This;             <span class="comment">/* this + call_info + num_args    */</span></span><br><span class="line">    zend_execute_data   *prev_execute_data;</span><br><span class="line">    zend_array          *symbol_table;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> ZEND_EX_USE_RUN_TIME_CACHE</span></span><br><span class="line">    <span class="keyword">void</span>               **run_time_cache;   <span class="comment">/* cache op_array-&gt;run_time_cache */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> ZEND_EX_USE_LITERALS</span></span><br><span class="line">    zval                *literals;         <span class="comment">/* cache op_array-&gt;literals       */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>opline</code>：执行的opline。<br>
+<code>call</code>：此次执行时的调用信息，指向<code>zend_execute_data</code>本身。<br>
+<code>return_value</code>：调用的返回值。<br>
+<code>func</code>：执行的函数。<br>
+<code>This</code>：此次执行的<code>zend_execute_data</code>。<br>
+<code>prev_execute_data</code>：上一次执行的信息。</p>
+<p><a id="markdown-zend_vm_stack_push_call_frame" name="zend_vm_stack_push_call_frame"></a></p>
+<h2 id="zend_vm_stack_push_call_frame"><a class="markdownIt-Anchor" href="#zend_vm_stack_push_call_frame"></a> zend_vm_stack_push_call_frame</h2>
+<p><code>Zend/zend_execute.h:207</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> zend_always_inline zend_execute_data *<span class="title">zend_vm_stack_push_call_frame</span><span class="params">(<span class="keyword">uint32_t</span> call_info, zend_function *func, <span class="keyword">uint32_t</span> num_args, zend_class_entry *called_scope, zend_object *object)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> used_stack = zend_vm_calc_used_stack(num_args, func);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> zend_vm_stack_push_call_frame_ex(used_stack, call_info,</span><br><span class="line">        func, num_args, called_scope, object);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>zend_vm_calc_used_stack</code>用来计算栈顶位置，提供给<code>zend_vm_stack_push_call_frame_ex</code>。后者构造一个栈顶的<code>zend_execute_data</code>，保存到<code>call</code>里面，然后为其初始化并返回。</p>
+<p><code>Zend/zend_execute.h:197</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> zend_always_inline uint32_t <span class="title">zend_vm_calc_used_stack</span><span class="params">(<span class="keyword">uint32_t</span> num_args, zend_function *func)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> used_stack = ZEND_CALL_FRAME_SLOT + num_args;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (EXPECTED(ZEND_USER_CODE(func-&gt;type))) &#123;</span><br><span class="line">        used_stack += func-&gt;op_array.last_var + func-&gt;op_array.T - MIN(func-&gt;op_array.num_args, num_args);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> used_stack * <span class="keyword">sizeof</span>(zval);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_execute.h:179</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> zend_always_inline zend_execute_data *<span class="title">zend_vm_stack_push_call_frame_ex</span><span class="params">(<span class="keyword">uint32_t</span> used_stack, <span class="keyword">uint32_t</span> call_info, zend_function *func, <span class="keyword">uint32_t</span> num_args, zend_class_entry *called_scope, zend_object *object)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_execute_data *call = (zend_execute_data*)EG(vm_stack_top);</span><br><span class="line"></span><br><span class="line">    ZEND_ASSERT_VM_STACK_GLOBAL;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (UNEXPECTED(used_stack &gt; (<span class="keyword">size_t</span>)(((<span class="keyword">char</span>*)EG(vm_stack_end)) - (<span class="keyword">char</span>*)call))) &#123;</span><br><span class="line">        call = (zend_execute_data*)zend_vm_stack_extend(used_stack);</span><br><span class="line">        ZEND_ASSERT_VM_STACK_GLOBAL;</span><br><span class="line">        zend_vm_init_call_frame(call, call_info | ZEND_CALL_ALLOCATED, func, num_args, called_scope, object);</span><br><span class="line">        <span class="keyword">return</span> call;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        EG(vm_stack_top) = (zval*)((<span class="keyword">char</span>*)call + used_stack);</span><br><span class="line">        zend_vm_init_call_frame(call, call_info, func, num_args, called_scope, object);</span><br><span class="line">        <span class="keyword">return</span> call;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_execute.h:166</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> zend_always_inline <span class="keyword">void</span> <span class="title">zend_vm_init_call_frame</span><span class="params">(zend_execute_data *call, <span class="keyword">uint32_t</span> call_info, zend_function *func, <span class="keyword">uint32_t</span> num_args, zend_class_entry *called_scope, zend_object *object)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    call-&gt;func = func;</span><br><span class="line">    <span class="keyword">if</span> (object) &#123;</span><br><span class="line">        Z_OBJ(call-&gt;This) = object;</span><br><span class="line">        ZEND_SET_CALL_INFO(call, <span class="number">1</span>, call_info);</span><br><span class="line">    &#125; <span class="keyword">else</span> d&#123;</span><br><span class="line">        Z_CE(call-&gt;This) = called_scope;</span><br><span class="line">        ZEND_SET_CALL_INFO(call, <span class="number">0</span>, call_info);</span><br><span class="line">    &#125;</span><br><span class="line">    ZEND_CALL_NUM_ARGS(call) = num_args;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_compile.h:489</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZEND_SET_CALL_INFO(call, object, info) do &#123; \</span></span><br><span class="line">        Z_TYPE_INFO((call)-&gt;This) = ((object) ? IS_OBJECT_EX : IS_UNDEF) | ((info) &lt;&lt; ZEND_CALL_INFO_SHIFT); \</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_compile.h:501</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZEND_CALL_NUM_ARGS(call) \</span></span><br><span class="line">    (call)-&gt;This.u2.num_args</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-i_init_execute_data" name="i_init_execute_data"></a></p>
+<h2 id="i_init_execute_data"><a class="markdownIt-Anchor" href="#i_init_execute_data"></a> i_init_execute_data</h2>
+<p>建立<code>op_array</code>与<code>execute_data</code>之间的联系，并将<code>execute_data</code>赋值给<code>current_execute_data</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EX(element) 			((execute_data)-&gt;element)</span></span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_execute.c:2208</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> zend_always_inline <span class="keyword">void</span> <span class="title">i_init_execute_data</span><span class="params">(zend_execute_data *execute_data, zend_op_array *op_array, zval *return_value)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ZEND_ASSERT(EX(func) == (zend_function*)op_array);</span><br><span class="line"></span><br><span class="line">    EX(opline) = op_array-&gt;opcodes;</span><br><span class="line">    EX(call) = <span class="literal">NULL</span>;</span><br><span class="line">    EX(return_value) = return_value;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (EX_CALL_INFO() &amp; ZEND_CALL_HAS_SYMBOL_TABLE) &#123;</span><br><span class="line">        zend_attach_symbol_table(execute_data);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">uint32_t</span> first_extra_arg, num_args;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Handle arguments */</span></span><br><span class="line">        first_extra_arg = op_array-&gt;num_args;</span><br><span class="line">        num_args = EX_NUM_ARGS();</span><br><span class="line">        <span class="keyword">if</span> (UNEXPECTED(num_args &gt; first_extra_arg)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (EXPECTED(!(op_array-&gt;fn_flags &amp; ZEND_ACC_CALL_VIA_TRAMPOLINE))) &#123;</span><br><span class="line">                zval *end, *src, *dst;</span><br><span class="line">                <span class="keyword">uint32_t</span> type_flags = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (EXPECTED((op_array-&gt;fn_flags &amp; ZEND_ACC_HAS_TYPE_HINTS) == <span class="number">0</span>)) &#123;</span><br><span class="line">                    <span class="comment">/* Skip useless ZEND_RECV and ZEND_RECV_INIT opcodes */</span></span><br><span class="line">                    EX(opline) += first_extra_arg;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">/* move extra args into separate array after all CV and TMP vars */</span></span><br><span class="line">                end = EX_VAR_NUM(first_extra_arg - <span class="number">1</span>);</span><br><span class="line">                src = end + (num_args - first_extra_arg);</span><br><span class="line">                dst = src + (op_array-&gt;last_var + op_array-&gt;T - first_extra_arg);</span><br><span class="line">                <span class="keyword">if</span> (EXPECTED(src != dst)) &#123;</span><br><span class="line">                    <span class="keyword">do</span> &#123;</span><br><span class="line">                        type_flags |= Z_TYPE_INFO_P(src);</span><br><span class="line">                        ZVAL_COPY_VALUE(dst, src);</span><br><span class="line">                        ZVAL_UNDEF(src);</span><br><span class="line">                        src--;</span><br><span class="line">                        dst--;</span><br><span class="line">                    &#125; <span class="keyword">while</span> (src != end);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">do</span> &#123;</span><br><span class="line">                        type_flags |= Z_TYPE_INFO_P(src);</span><br><span class="line">                        src--;</span><br><span class="line">                    &#125; <span class="keyword">while</span> (src != end);</span><br><span class="line">                &#125;</span><br><span class="line">                ZEND_ADD_CALL_FLAG(execute_data, ((type_flags &gt;&gt; Z_TYPE_FLAGS_SHIFT) &amp; IS_TYPE_REFCOUNTED));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (EXPECTED((op_array-&gt;fn_flags &amp; ZEND_ACC_HAS_TYPE_HINTS) == <span class="number">0</span>)) &#123;</span><br><span class="line">            <span class="comment">/* Skip useless ZEND_RECV and ZEND_RECV_INIT opcodes */</span></span><br><span class="line">            EX(opline) += num_args;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Initialize CV variables (skip arguments) */</span></span><br><span class="line">        <span class="keyword">if</span> (EXPECTED((<span class="keyword">int</span>)num_args &lt; op_array-&gt;last_var)) &#123;</span><br><span class="line">            zval *var = EX_VAR_NUM(num_args);</span><br><span class="line">            zval *end = EX_VAR_NUM(op_array-&gt;last_var);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                ZVAL_UNDEF(var);</span><br><span class="line">                var++;</span><br><span class="line">            &#125; <span class="keyword">while</span> (var != end);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!op_array-&gt;run_time_cache) &#123;</span><br><span class="line">        <span class="keyword">if</span> (op_array-&gt;function_name) &#123;</span><br><span class="line">            op_array-&gt;run_time_cache = zend_arena_alloc(&amp;CG(arena), op_array-&gt;cache_size);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            op_array-&gt;run_time_cache = emalloc(op_array-&gt;cache_size);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">memset</span>(op_array-&gt;run_time_cache, <span class="number">0</span>, op_array-&gt;cache_size);</span><br><span class="line">    &#125;</span><br><span class="line">    EX_LOAD_RUN_TIME_CACHE(op_array);</span><br><span class="line">    EX_LOAD_LITERALS(op_array);</span><br><span class="line"></span><br><span class="line">    EG(current_execute_data) = execute_data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>zend_attach_symbol_table</code>主要是绑定全局变量hash表，<code>Zend/zend_execute_API.c:1593</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="keyword">void</span> <span class="title">zend_attach_symbol_table</span><span class="params">(zend_execute_data *execute_data)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_op_array *op_array = &amp;execute_data-&gt;func-&gt;op_array;</span><br><span class="line">    HashTable *ht = execute_data-&gt;symbol_table;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* copy real values from symbol table into CV slots and create</span></span><br><span class="line"><span class="comment">       INDIRECT references to CV in symbol table  */</span></span><br><span class="line">    <span class="keyword">if</span> (EXPECTED(op_array-&gt;last_var)) &#123;</span><br><span class="line">        zend_string **str = op_array-&gt;vars;</span><br><span class="line">        zend_string **end = str + op_array-&gt;last_var;</span><br><span class="line">        zval *var = EX_VAR_NUM(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            zval *zv = zend_hash_find(ht, *str);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (zv) &#123;</span><br><span class="line">                <span class="keyword">if</span> (Z_TYPE_P(zv) == IS_INDIRECT) &#123;</span><br><span class="line">                    zval *val = Z_INDIRECT_P(zv);</span><br><span class="line"></span><br><span class="line">                    ZVAL_COPY_VALUE(var, val);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    ZVAL_COPY_VALUE(var, zv);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                ZVAL_UNDEF(var);</span><br><span class="line">                zv = zend_hash_add_new(ht, *str, var);</span><br><span class="line">            &#125;</span><br><span class="line">            ZVAL_INDIRECT(zv, var);</span><br><span class="line">            str++;</span><br><span class="line">            var++;</span><br><span class="line">        &#125; <span class="keyword">while</span> (str != end);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-zend_execute_ex" name="zend_execute_ex"></a></p>
+<h2 id="zend_execute_ex"><a class="markdownIt-Anchor" href="#zend_execute_ex"></a> zend_execute_ex</h2>
+<p><code>Zend/zend_execute_API.c:45</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="title">void</span> <span class="params">(*zend_execute_ex)</span><span class="params">(zend_execute_data *execute_data)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><code>zend_execute_ex</code>是一个函数指针，<code>Zend/zend.c:717</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zend_execute_ex = execute_ex;</span><br></pre></td></tr></table></figure>
+<p>走到这一步，<code>opcodes</code>运行所需要的信息都已经处理完毕了，接下来就是按照逻辑调用他们的处理函数了。</p>
+<p><code>Zend/zend_vm_execute.h:406</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="keyword">void</span> <span class="title">execute_ex</span><span class="params">(zend_execute_data *ex)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    DCL_OPLINE</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> ZEND_VM_IP_GLOBAL_REG</span></span><br><span class="line">    <span class="keyword">const</span> zend_op *orig_opline = opline;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> ZEND_VM_FP_GLOBAL_REG</span></span><br><span class="line">    zend_execute_data *orig_execute_data = execute_data;</span><br><span class="line">    execute_data = ex;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    zend_execute_data *execute_data = ex;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    LOAD_OPLINE();</span><br><span class="line">    ZEND_VM_LOOP_INTERRUPT_CHECK();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !defined(ZEND_VM_FP_GLOBAL_REG) || !defined(ZEND_VM_IP_GLOBAL_REG)</span></span><br><span class="line">            <span class="keyword">int</span> ret;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(ZEND_VM_FP_GLOBAL_REG) &amp;&amp; defined(ZEND_VM_IP_GLOBAL_REG)</span></span><br><span class="line">        ((<span class="keyword">opcode_handler_t</span>)OPLINE-&gt;handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);</span><br><span class="line">        <span class="keyword">if</span> (UNEXPECTED(!OPLINE)) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">        <span class="keyword">if</span> (UNEXPECTED((ret = ((<span class="keyword">opcode_handler_t</span>)OPLINE-&gt;handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU)) != <span class="number">0</span>)) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> ZEND_VM_FP_GLOBAL_REG</span></span><br><span class="line">            execute_data = orig_execute_data;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> ZEND_VM_IP_GLOBAL_REG</span></span><br><span class="line">            opline = orig_opline;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">            <span class="keyword">if</span> (EXPECTED(ret &gt; <span class="number">0</span>)) &#123;</span><br><span class="line">                execute_data = EG(current_execute_data);</span><br><span class="line">                ZEND_VM_LOOP_INTERRUPT_CHECK();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"># ifdef ZEND_VM_IP_GLOBAL_REG</span><br><span class="line">                opline = orig_opline;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    zend_error_noreturn(E_CORE_ERROR, <span class="string">"Arrived at end of main loop which shouldn't happen"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个while循环就是在执行opcode了，整理一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">if</span> (UNEXPECTED((ret = ((<span class="keyword">opcode_handler_t</span>)OPLINE-&gt;handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU)) != <span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (EXPECTED(ret &gt; <span class="number">0</span>)) &#123;</span><br><span class="line">            execute_data = EG(current_execute_data);</span><br><span class="line">            ZEND_VM_LOOP_INTERRUPT_CHECK();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要看这句<code>(ret = ((opcode_handler_t)OPLINE-&gt;handler)(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU)) != 0)</code></p>
+<p><code>ZEND_OPCODE_HANDLER_ARGS_PASSTHRU</code>是<code>execute_data</code>，<code>Zend/zend_vm_execute.h:343</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">define</span> ZEND_OPCODE_HANDLER_ARGS_PASSTHRU execute_data</span></span><br></pre></td></tr></table></figure>
+<p><code>OPLINE</code>这个宏是取当前的opline，<code>Zend/zend_vm_execute.h:380</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">define</span> OPLINE EX(opline)</span></span><br></pre></td></tr></table></figure>
+<p>而opline是zend_op结构体，在之前的<code>i_init_execute_data</code>中开头有这么一行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EX(opline) = op_array-&gt;opcodes;</span><br></pre></td></tr></table></figure>
+<p>所以这块循环就是不停的调用当前<code>opline</code>的handler函数，检查返回值，然后<code>execute_data = EG(current_execute_data)</code>，检查中断，然后继续下一个循环。</p>
+<p><code>opline</code>指针的指向是如何运作的？其实在每一个handler函数中，会结合自身的数据结构，通过<code>ZEND_VM_SET_OPCODE</code>这么一个宏或者其他的方式，来控制<code>opline</code>向前推进。</p>
+<p>参考这篇文章：<a href="http://www.php-internals.com/book/?p=chapt02/02-03-03-from-opcode-to-handler#%E5%91%BD%E5%90%8D%E6%9F%A5%E6%89%BE%E6%B3%95" target="_blank" rel="noopener">opcode处理函数查找</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Zend-Engine/" rel="tag"># Zend Engine</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/JavaScript/p5_hi/" rel="next" title="Hi from p5.js">
+                <i class="fa fa-chevron-left"></i> Hi from p5.js
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/engine_general_lifetime_of_php_code_5/" rel="prev" title="PHP代码的一生（五）YACC和AST">
+                PHP代码的一生（五）YACC和AST <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序流"><span class="nav-number">1.</span> <span class="nav-text"> 程序流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zend_execute_data"><span class="nav-number">2.</span> <span class="nav-text"> zend_execute_data</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zend_vm_stack_push_call_frame"><span class="nav-number">3.</span> <span class="nav-text"> zend_vm_stack_push_call_frame</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#i_init_execute_data"><span class="nav-number">4.</span> <span class="nav-text"> i_init_execute_data</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zend_execute_ex"><span class="nav-number">5.</span> <span class="nav-text"> zend_execute_ex</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = 'PHP代码的一生（四）zend_execute'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

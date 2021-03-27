@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,Laravel,Framework,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="刚开始学习这个框架的时候，看文档绕的我半死，主要是因为文档基本在阐述如何使用，而没有过多讲解功能是如何实现的。文档所灌输的一堆概念对初学者并不友好，更适合做入门之后的参考资料。 框架的入口文件（public/index.php）是我目前见过的最简洁但却最逻辑分明的，暂且跟着程序逻辑，一点点解开Laravel的核心概念。 希望通过这篇文章，我们可以对Laravel程序的生命周期有清晰的认识，更重要的">
+<meta name="keywords" content="PHP,Laravel,Framework">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Laravel框架运行机制">
+<meta property="og:url" content="http://www.notee.cc/Laravel/understanding_laravel_lifetime/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="刚开始学习这个框架的时候，看文档绕的我半死，主要是因为文档基本在阐述如何使用，而没有过多讲解功能是如何实现的。文档所灌输的一堆概念对初学者并不友好，更适合做入门之后的参考资料。 框架的入口文件（public/index.php）是我目前见过的最简洁但却最逻辑分明的，暂且跟着程序逻辑，一点点解开Laravel的核心概念。 希望通过这篇文章，我们可以对Laravel程序的生命周期有清晰的认识，更重要的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.041Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理解Laravel框架运行机制">
+<meta name="twitter:description" content="刚开始学习这个框架的时候，看文档绕的我半死，主要是因为文档基本在阐述如何使用，而没有过多讲解功能是如何实现的。文档所灌输的一堆概念对初学者并不友好，更适合做入门之后的参考资料。 框架的入口文件（public/index.php）是我目前见过的最简洁但却最逻辑分明的，暂且跟着程序逻辑，一点点解开Laravel的核心概念。 希望通过这篇文章，我们可以对Laravel程序的生命周期有清晰的认识，更重要的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/Laravel/understanding_laravel_lifetime/">
+
+
+
+
+
+  <title>理解Laravel框架运行机制 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/Laravel/understanding_laravel_lifetime/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">理解Laravel框架运行机制</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T17:11:09+08:00">
+                2019-03-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/Laravel/understanding_laravel_lifetime/" class="leancloud_visitors" data-flag-title="理解Laravel框架运行机制">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>刚开始学习这个框架的时候，看文档绕的我半死，主要是因为文档基本在阐述如何使用，而没有过多讲解功能是如何实现的。文档所灌输的一堆概念对初学者并不友好，更适合做入门之后的参考资料。<br>
+框架的入口文件（<code>public/index.php</code>）是我目前见过的最简洁但却最逻辑分明的，暂且跟着程序逻辑，一点点解开Laravel的核心概念。<br>
+希望通过这篇文章，我们可以对Laravel程序的生命周期有清晰的认识，更重要的是理解其设计原理，再也不怕文档中的诗兴大发了。<br>
+这篇文章会尽量侧重于解释名词和原理，如果你刚了解Laravel，大可不必担心。</p>
+<p>推荐阅读：(框架作者有个文章，讲解他是如何设计Laravel的，看完忘记保存下来了T_T，找到再补)</p>
+<p>目录：</p>
+<!-- TOC depthFrom:1 depthTo:3 insertAnchor:true orderedList:false withLinks:true -->
+<ul>
+<li><a href="#application%E5%92%8Ccontainer">Application和Container</a></li>
+<li><a href="#%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5">依赖注入</a></li>
+<li><a href="#serviceprovider">ServiceProvider</a></li>
+<li><a href="#request">Request</a></li>
+<li><a href="#bootstrapper">Bootstrapper</a>
+<ul>
+<li><a href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">环境变量</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">配置文件</a></li>
+<li><a href="#%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7">异常捕获</a></li>
+<li><a href="#facades">Facades</a></li>
+<li><a href="#%E5%8A%A0%E8%BD%BDserviceprovider">加载ServiceProvider</a></li>
+</ul>
+</li>
+<li><a href="#pipeline%E5%92%8Cmiddleware">Pipeline和Middleware</a></li>
+<li><a href="#router">Router</a>
+<ul>
+<li><a href="#%E8%B7%AF%E7%94%B1%E5%88%86%E5%8F%91">路由分发</a></li>
+<li><a href="#response">Response</a></li>
+</ul>
+</li>
+<li><a href="#%E7%A8%8B%E5%BA%8F%E9%80%80%E5%87%BA">程序退出</a></li>
+</ul>
+<!-- /TOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<p><a id="markdown-application和container" name="application和container"></a></p>
+<h2 id="application和container"><a class="markdownIt-Anchor" href="#application和container"></a> Application和Container</h2>
+<p>Application扩展了Container，本质上是一个IOC容器，可以理为是一个全局对象池，里面存放了各种全局类与属性，方便程序逻辑复用这些对象。</p>
+<p>Container的<code>instance($abstract, $instance)</code>方法可以理解为一个键值存储系统，为一个实例（创建的类，或者是简单的数据结构）分配一个索引键，这样就可以通过简写的索引来访问所存储的具体实例。</p>
+<p>Container还有一个<code>bind($abstract, $concrete = null, $shared = false)</code>方法也是用来创建实例，它所描述的是可以通过索引来创建这个实例，而不是像<code>instance</code>那样直接将实例所绑定，看起来更像是用来协助<code>instance</code>来完成这一实例的注册任务。</p>
+<p>Container也贴心的设置了<code>alias($abstract, $alias)</code>、<code>extend($abstract, Closure $closure)</code>和<code>rebinding($abstract, Closure $callback)</code>方法，方便我们为索引设置别名、在实例生成后操作该实例、旧实例被覆盖时操作新的实例。</p>
+<p>Container的<code>make($abstract, array $parameters = [])</code>方法便是获取这些注册的实例的，它会解析出索引对应的具体对象（分析索引别名，是否需要新的实例），然后返回。</p>
+<p>在Application的构造方法中</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($basePath = null)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ($basePath) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;setBasePath($basePath);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;registerBaseBindings();</span><br><span class="line">    <span class="keyword">$this</span>-&gt;registerBaseServiceProviders();</span><br><span class="line">    <span class="keyword">$this</span>-&gt;registerCoreContainerAliases();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将各种路径注册到实例中</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setBasePath</span><span class="params">($basePath)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;basePath = rtrim($basePath, <span class="string">'\/'</span>);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;bindPathsInContainer();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">bindPathsInContainer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path'</span>, <span class="keyword">$this</span>-&gt;path());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.base'</span>, <span class="keyword">$this</span>-&gt;basePath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.lang'</span>, <span class="keyword">$this</span>-&gt;langPath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.config'</span>, <span class="keyword">$this</span>-&gt;configPath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.public'</span>, <span class="keyword">$this</span>-&gt;publicPath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.storage'</span>, <span class="keyword">$this</span>-&gt;storagePath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.database'</span>, <span class="keyword">$this</span>-&gt;databasePath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.resources'</span>, <span class="keyword">$this</span>-&gt;resourcePath());</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'path.bootstrap'</span>, <span class="keyword">$this</span>-&gt;bootstrapPath());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将自身也存储到实例中（索引是<code>app</code>和<code>Container::class</code>）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">registerBaseBindings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span>::setInstance(<span class="keyword">$this</span>);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(<span class="string">'app'</span>, <span class="keyword">$this</span>);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(Container::class, <span class="keyword">$this</span>);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;instance(PackageManifest::class, <span class="keyword">new</span> PackageManifest(</span><br><span class="line">        <span class="keyword">new</span> Filesystem, <span class="keyword">$this</span>-&gt;basePath(), <span class="keyword">$this</span>-&gt;getCachedPackagesPath()</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后为一些类设置别名，指向相应的索引</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">registerCoreContainerAliases</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">foreach</span> ([</span><br><span class="line">        <span class="string">'app'</span> =&gt; [\Illuminate\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],</span><br><span class="line">        <span class="comment">// 省略一些</span></span><br><span class="line">    ] <span class="keyword">as</span> $key =&gt; $aliases) &#123;</span><br><span class="line">        <span class="keyword">foreach</span> ($aliases <span class="keyword">as</span> $alias) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;alias($key, $alias);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时如果我们调用<code>app-&gt;make(\Psr\Container\ContainerInterface::class)</code>或者<code>app-&gt;make('app')</code>，都可以获得相同的Application实例。</p>
+<p><a id="markdown-依赖注入" name="依赖注入"></a></p>
+<h2 id="依赖注入"><a class="markdownIt-Anchor" href="#依赖注入"></a> 依赖注入</h2>
+<p>在调用<code>make</code>方法让IOC容器为我们生成实例时，会为实例注入相应的依赖，举个例子：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(B $b)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;b = $b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">somethingToDo</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;b-&gt;doSomething();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app()-&gt;bind(<span class="string">'a'</span>, A::class)</span><br><span class="line">app()-&gt;make(<span class="string">'a'</span>);</span><br></pre></td></tr></table></figure>
+<p>通过依赖注入，我们可以不用在每一个方法中手动去实例化一个对象，只需要在构造方法中声明即可（其实并不能叫声明，PHP并没有这种语法，它只是利用一种小技巧来模拟声明）。</p>
+<p><code>make</code>方法通过调用<code>build</code>方法来构造一个新的实例。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">build</span><span class="params">($concrete)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// If the concrete type is actually a Closure, we will just execute it and</span></span><br><span class="line">    <span class="comment">// hand back the results of the functions, which allows functions to be</span></span><br><span class="line">    <span class="comment">// used as resolvers for more fine-tuned resolution of these objects.</span></span><br><span class="line">    <span class="keyword">if</span> ($concrete <span class="keyword">instanceof</span> Closure) &#123;</span><br><span class="line">        <span class="keyword">return</span> $concrete(<span class="keyword">$this</span>, <span class="keyword">$this</span>-&gt;getLastParameterOverride());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $reflector = <span class="keyword">new</span> ReflectionClass($concrete);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the type is not instantiable, the developer is attempting to resolve</span></span><br><span class="line">    <span class="comment">// an abstract type such as an Interface of Abstract Class and there is</span></span><br><span class="line">    <span class="comment">// no binding registered for the abstractions so we need to bail out.</span></span><br><span class="line">    <span class="keyword">if</span> (! $reflector-&gt;isInstantiable()) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;notInstantiable($concrete);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;buildStack[] = $concrete;</span><br><span class="line"></span><br><span class="line">    $constructor = $reflector-&gt;getConstructor();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If there are no constructors, that means there are no dependencies then</span></span><br><span class="line">    <span class="comment">// we can just resolve the instances of the objects right away, without</span></span><br><span class="line">    <span class="comment">// resolving any other types or dependencies out of these containers.</span></span><br><span class="line">    <span class="keyword">if</span> (is_null($constructor)) &#123;</span><br><span class="line">        array_pop(<span class="keyword">$this</span>-&gt;buildStack);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> $concrete;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $dependencies = $constructor-&gt;getParameters();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Once we have all the constructor's parameters we can create each of the</span></span><br><span class="line">    <span class="comment">// dependency instances and then use the reflection instances to make a</span></span><br><span class="line">    <span class="comment">// new instance of this class, injecting the created dependencies in.</span></span><br><span class="line">    $instances = <span class="keyword">$this</span>-&gt;resolveDependencies(</span><br><span class="line">        $dependencies</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    array_pop(<span class="keyword">$this</span>-&gt;buildStack);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $reflector-&gt;newInstanceArgs($instances);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果传入一个类的名称，它会通过反射来获取这个类的构造方法及其参数，然后处理参数中声明的依赖，利用向<code>newInstanceArgs</code>中传递处理后的合法参数来生成实例。</p>
+<p><a id="markdown-serviceprovider" name="serviceprovider"></a></p>
+<h2 id="serviceprovider"><a class="markdownIt-Anchor" href="#serviceprovider"></a> ServiceProvider</h2>
+<p>注册ServiceProvider是Application的另一个重要的功能，希望通过IOC容器来将服务的使用和初始化解除耦合。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">register</span><span class="params">($provider, $options = [], $force = false)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (($registered = <span class="keyword">$this</span>-&gt;getProvider($provider)) &amp;&amp; ! $force) &#123;</span><br><span class="line">        <span class="keyword">return</span> $registered;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the given "provider" is a string, we will resolve it, passing in the</span></span><br><span class="line">    <span class="comment">// application instance automatically for the developer. This is simply</span></span><br><span class="line">    <span class="comment">// a more convenient way of specifying your service provider classes.</span></span><br><span class="line">    <span class="keyword">if</span> (is_string($provider)) &#123;</span><br><span class="line">        $provider = <span class="keyword">$this</span>-&gt;resolveProvider($provider);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (method_exists($provider, <span class="string">'register'</span>)) &#123;</span><br><span class="line">        $provider-&gt;register();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;markAsRegistered($provider);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the application has already booted, we will call this boot method on</span></span><br><span class="line">    <span class="comment">// the provider class so it has an opportunity to do its boot logic and</span></span><br><span class="line">    <span class="comment">// will be ready for any usage by this developer's application logic.</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;booted) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;bootProvider($provider);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $provider;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注册时会实例化这个Provider（将Application作为构造参数），然后调用其注册方法（将服务绑定到IOC容器中）。</p>
+<p>至此，Application实例已经创建好了。其中该有的实例和别名已经设置妥当，必要的ServiceProvider也实例化并注册好了。(这就是注释里所谓的’Turn On The Lights’ …)</p>
+<p><a id="markdown-request" name="request"></a></p>
+<h2 id="request"><a class="markdownIt-Anchor" href="#request"></a> Request</h2>
+<p>Laravel是这样描述处理并响应一个请求的：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$kernel = $app-&gt;make(Illuminate\Contracts\Http\Kernel::class);</span><br><span class="line"></span><br><span class="line">$response = $kernel-&gt;handle(</span><br><span class="line">    $request = Illuminate\Http\Request::capture()</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">$response-&gt;send();</span><br></pre></td></tr></table></figure>
+<p><code>Illuminate\Http\Request::capture()</code>借助<a href="https://symfony.com/doc/current/components/http_foundation.html" target="_blank" rel="noopener">Symfony的HttpFoundation组件</a>对当前的请求进行解析，封装成一个统一格式的对象:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">capture</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span>::enableHttpMethodParameterOverride();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static</span>::createFromBase(SymfonyRequest::createFromGlobals());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">createFromBase</span><span class="params">(SymfonyRequest $request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ($request <span class="keyword">instanceof</span> <span class="keyword">static</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> $request;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $content = $request-&gt;content;</span><br><span class="line"></span><br><span class="line">    $request = (<span class="keyword">new</span> <span class="keyword">static</span>)-&gt;duplicate(</span><br><span class="line">        $request-&gt;query-&gt;all(), $request-&gt;request-&gt;all(), $request-&gt;attributes-&gt;all(),</span><br><span class="line">        $request-&gt;cookies-&gt;all(), $request-&gt;files-&gt;all(), $request-&gt;server-&gt;all()</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    $request-&gt;content = $content;</span><br><span class="line"></span><br><span class="line">    $request-&gt;request = $request-&gt;getInputSource();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $request;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>$kernal-&gt;handle($request)</code>中，有一个兜底的异常捕获：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">($request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        $request-&gt;enableHttpMethodParameterOverride();</span><br><span class="line"></span><br><span class="line">        $response = <span class="keyword">$this</span>-&gt;sendRequestThroughRouter($request);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (<span class="keyword">Exception</span> $e) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;reportException($e);</span><br><span class="line"></span><br><span class="line">        $response = <span class="keyword">$this</span>-&gt;renderException($request, $e);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable $e) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;reportException($e = <span class="keyword">new</span> FatalThrowableError($e));</span><br><span class="line"></span><br><span class="line">        $response = <span class="keyword">$this</span>-&gt;renderException($request, $e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;app[<span class="string">'events'</span>]-&gt;dispatch(</span><br><span class="line">        <span class="keyword">new</span> Events\RequestHandled($request, $response)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $response;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">sendRequestThroughRouter</span><span class="params">($request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;app-&gt;instance(<span class="string">'request'</span>, $request);</span><br><span class="line"></span><br><span class="line">    Facade::clearResolvedInstance(<span class="string">'request'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;bootstrap();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> Pipeline(<span class="keyword">$this</span>-&gt;app))</span><br><span class="line">                -&gt;send($request)</span><br><span class="line">                -&gt;through(<span class="keyword">$this</span>-&gt;app-&gt;shouldSkipMiddleware() ? [] : <span class="keyword">$this</span>-&gt;middleware)</span><br><span class="line">                -&gt;then(<span class="keyword">$this</span>-&gt;dispatchToRouter());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-bootstrapper" name="bootstrapper"></a></p>
+<h2 id="bootstrapper"><a class="markdownIt-Anchor" href="#bootstrapper"></a> Bootstrapper</h2>
+<p><code>bootstrap</code>方法可以使Application针对当前环境（Http请求/CLI脚本）来加载不同的模块，为应用处理请求提供必要的支持。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (! <span class="keyword">$this</span>-&gt;app-&gt;hasBeenBootstrapped()) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;app-&gt;bootstrapWith(<span class="keyword">$this</span>-&gt;bootstrappers());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Http默认的Bootstraper有以下几种：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> $bootstrappers = [</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\HandleExceptions::class,</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\RegisterFacades::class,</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\RegisterProviders::class,</span><br><span class="line">    \Illuminate\Foundation\Bootstrap\BootProviders::class,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-环境变量" name="环境变量"></a></p>
+<h3 id="环境变量"><a class="markdownIt-Anchor" href="#环境变量"></a> 环境变量</h3>
+<p>检查配置缓存，借助<a href="https://github.com/vlucas/phpdotenv" target="_blank" rel="noopener">Dotenv</a>，根据当前应用的环境加载<code>.env</code>文件。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ($app-&gt;configurationIsCached()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;checkForSpecificEnvironmentFile($app);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        (<span class="keyword">new</span> Dotenv($app-&gt;environmentPath(), $app-&gt;environmentFile()))-&gt;load();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InvalidPathException $e) &#123;</span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>缓存文件是通过<code>artisan</code>命令手动生成的，暂且不做深入。</p>
+<p><a id="markdown-配置文件" name="配置文件"></a></p>
+<h3 id="配置文件"><a class="markdownIt-Anchor" href="#配置文件"></a> 配置文件</h3>
+<p>检查缓存，加载配置文件，设置软件环境、时区等。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $items = [];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// First we will see if we have a cache configuration file. If we do, we'll load</span></span><br><span class="line">    <span class="comment">// the configuration items from that file so that it is very quick. Otherwise</span></span><br><span class="line">    <span class="comment">// we will need to spin through every configuration file and load them all.</span></span><br><span class="line">    <span class="keyword">if</span> (file_exists($cached = $app-&gt;getCachedConfigPath())) &#123;</span><br><span class="line">        $items = <span class="keyword">require</span> $cached;</span><br><span class="line"></span><br><span class="line">        $loadedFromCache = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Next we will spin through all of the configuration files in the configuration</span></span><br><span class="line">    <span class="comment">// directory and load each one into the repository. This will make all of the</span></span><br><span class="line">    <span class="comment">// options available to the developer for use in various parts of this app.</span></span><br><span class="line">    $app-&gt;instance(<span class="string">'config'</span>, $config = <span class="keyword">new</span> Repository($items));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (! <span class="keyword">isset</span>($loadedFromCache)) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;loadConfigurationFiles($app, $config);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finally, we will set the application's environment based on the configuration</span></span><br><span class="line">    <span class="comment">// values that were loaded. We will pass a callback which will be used to get</span></span><br><span class="line">    <span class="comment">// the environment in a web context where an "--env" switch is not present.</span></span><br><span class="line">    $app-&gt;detectEnvironment(<span class="function"><span class="keyword">function</span> <span class="params">()</span> <span class="title">use</span> <span class="params">($config)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $config-&gt;get(<span class="string">'app.env'</span>, <span class="string">'production'</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    date_default_timezone_set($config-&gt;get(<span class="string">'app.timezone'</span>, <span class="string">'UTC'</span>));</span><br><span class="line"></span><br><span class="line">    mb_internal_encoding(<span class="string">'UTF-8'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-异常捕获" name="异常捕获"></a></p>
+<h3 id="异常捕获"><a class="markdownIt-Anchor" href="#异常捕获"></a> 异常捕获</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;app = $app;</span><br><span class="line"></span><br><span class="line">    error_reporting(<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">    set_error_handler([<span class="keyword">$this</span>, <span class="string">'handleError'</span>]);</span><br><span class="line"></span><br><span class="line">    set_exception_handler([<span class="keyword">$this</span>, <span class="string">'handleException'</span>]);</span><br><span class="line"></span><br><span class="line">    register_shutdown_function([<span class="keyword">$this</span>, <span class="string">'handleShutdown'</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (! $app-&gt;environment(<span class="string">'testing'</span>)) &#123;</span><br><span class="line">        ini_set(<span class="string">'display_errors'</span>, <span class="string">'Off'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">getExceptionHandler</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;app-&gt;make(ExceptionHandler::class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ExceptionHandler</code>实例被绑定为<code>\App\Exceptions\Handler</code>，借助<a href="https://github.com/filp/whoops" target="_blank" rel="noopener">whoops</a>和<a href="https://symfony.com/doc/current/components/debug.html" target="_blank" rel="noopener">Symfony Debug Component</a>来渲染抛出的异常。</p>
+<p><a id="markdown-facades" name="facades"></a></p>
+<h3 id="facades"><a class="markdownIt-Anchor" href="#facades"></a> Facades</h3>
+<p>所谓的“门面”其实是注册了一个autoload。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Facade::clearResolvedInstances();</span><br><span class="line"></span><br><span class="line">    Facade::setFacadeApplication($app);</span><br><span class="line"></span><br><span class="line">    AliasLoader::getInstance(array_merge(</span><br><span class="line">        $app-&gt;make(<span class="string">'config'</span>)-&gt;get(<span class="string">'app.aliases'</span>, []),</span><br><span class="line">        $app-&gt;make(PackageManifest::class)-&gt;aliases()</span><br><span class="line">    ))-&gt;register();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AliasLoader</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">register</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (! <span class="keyword">$this</span>-&gt;registered) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;prependToLoaderStack();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;registered = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">prependToLoaderStack</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    spl_autoload_register([<span class="keyword">$this</span>, <span class="string">'load'</span>], <span class="keyword">true</span>, <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">load</span><span class="params">($alias)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">static</span>::$facadeNamespace &amp;&amp; strpos($alias, <span class="keyword">static</span>::$facadeNamespace) === <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;loadFacade($alias);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;aliases[$alias])) &#123;</span><br><span class="line">        <span class="keyword">return</span> class_alias(<span class="keyword">$this</span>-&gt;aliases[$alias], $alias);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在访问门面类的时候，会检索注册的门面，利用<a href="https://www.php.net/manual/en/function.class-alias.php" target="_blank" rel="noopener">class_alias</a>注册别名并自动加载。</p>
+<p>在调用门面的方法的时候，利用<a href="https://www.php.net/manual/en/language.oop5.overloading.php#object.callstatic" target="_blank" rel="noopener">__callStatic</a>来调用具体的Application中绑定的实例。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">__callStatic</span><span class="params">($method, $args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $instance = <span class="keyword">static</span>::getFacadeRoot();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (! $instance) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'A facade root has not been set.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $instance-&gt;$method(...$args);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getFacadeRoot</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static</span>::resolveFacadeInstance(<span class="keyword">static</span>::getFacadeAccessor());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveFacadeInstance</span><span class="params">($name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (is_object($name)) &#123;</span><br><span class="line">        <span class="keyword">return</span> $name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="keyword">static</span>::$resolvedInstance[$name])) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">static</span>::$resolvedInstance[$name];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static</span>::$resolvedInstance[$name] = <span class="keyword">static</span>::$app[$name];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-加载serviceprovider" name="加载serviceprovider"></a></p>
+<h3 id="加载serviceprovider"><a class="markdownIt-Anchor" href="#加载serviceprovider"></a> 加载ServiceProvider</h3>
+<p>除了Application中注册的一部分核心ServiceProvider外，还需要注册配置文件中所配置的ServiceProvider。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $app-&gt;registerConfiguredProviders();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">registerConfiguredProviders</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $providers = Collection::make(<span class="keyword">$this</span>-&gt;config[<span class="string">'app.providers'</span>])</span><br><span class="line">                    -&gt;partition(<span class="function"><span class="keyword">function</span> <span class="params">($provider)</span> </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> Str::startsWith($provider, <span class="string">'Illuminate\\'</span>);</span><br><span class="line">                    &#125;);</span><br><span class="line"></span><br><span class="line">    $providers-&gt;splice(<span class="number">1</span>, <span class="number">0</span>, [<span class="keyword">$this</span>-&gt;make(PackageManifest::class)-&gt;providers()]);</span><br><span class="line"></span><br><span class="line">    (<span class="keyword">new</span> ProviderRepository(<span class="keyword">$this</span>, <span class="keyword">new</span> Filesystem, <span class="keyword">$this</span>-&gt;getCachedServicesPath()))</span><br><span class="line">                -&gt;load($providers-&gt;collapse()-&gt;toArray());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后遍历注册的ServiceProvide，调用其<code>boot</code>方法完成其启动所需的动作。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span><span class="params">(Application $app)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $app-&gt;boot();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">boot</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;booted) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Once the application has booted we will also fire some "booted" callbacks</span></span><br><span class="line">    <span class="comment">// for any listeners that need to do work after this initial booting gets</span></span><br><span class="line">    <span class="comment">// finished. This is useful when ordering the boot-up processes we run.</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;fireAppCallbacks(<span class="keyword">$this</span>-&gt;bootingCallbacks);</span><br><span class="line"></span><br><span class="line">    array_walk(<span class="keyword">$this</span>-&gt;serviceProviders, <span class="function"><span class="keyword">function</span> <span class="params">($p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;bootProvider($p);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;booted = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;fireAppCallbacks(<span class="keyword">$this</span>-&gt;bootedCallbacks);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">bootProvider</span><span class="params">(ServiceProvider $provider)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (method_exists($provider, <span class="string">'boot'</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;call([$provider, <span class="string">'boot'</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-pipeline和middleware" name="pipeline和middleware"></a></p>
+<h2 id="pipeline和middleware"><a class="markdownIt-Anchor" href="#pipeline和middleware"></a> Pipeline和Middleware</h2>
+<p>在Application启动后，Laravel模拟了一个管道来分发Request对象，返回Response响应对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">return (new Pipeline($this-&gt;app))</span><br><span class="line">            -&gt;send($request)</span><br><span class="line">            -&gt;through($this-&gt;app-&gt;shouldSkipMiddleware() ? [] : $this-&gt;middleware)</span><br><span class="line">            -&gt;then($this-&gt;dispatchToRouter());</span><br></pre></td></tr></table></figure>
+<p>在<code>Pipeline</code>的构造函数中，绑定了一个容器，用来方便管道取用对象。<code>send</code>指明了需要在管道中传递的对象，<code>through</code>指明了需要在哪些管道中传递；<code>then</code>传递一个函数，在传递的对象最终通过管道时调用该函数产生动作。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(Container $container = null)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;container = $container;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">send</span><span class="params">($passable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;passable = $passable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">through</span><span class="params">($pipes)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;pipes = is_array($pipes) ? $pipes : func_get_args();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">then</span><span class="params">(Closure $destination)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $pipeline = array_reduce(</span><br><span class="line">        array_reverse(<span class="keyword">$this</span>-&gt;pipes), <span class="keyword">$this</span>-&gt;carry(), <span class="keyword">$this</span>-&gt;prepareDestination($destination)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $pipeline(<span class="keyword">$this</span>-&gt;passable);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>管道的实现不按常规地巧妙借用了<a href="https://www.php.net/manual/zh/function.array-reduce.php" target="_blank" rel="noopener">array_reduce</a>函数：</p>
+<p>通过将reduce对象设置为函数，并且使<code>array_reduce</code>的回调函数返回一个闭包，从而将这些管道闭包像栈一样一层层地包裹起来，简化后或许更容易理解：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">then</span><span class="params">(Closure $destination)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $pipeline = array_reduce(</span><br><span class="line">        array_reverse(<span class="keyword">$this</span>-&gt;pipes), </span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> <span class="title">use</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> $pipe($passable, $stack);</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> $destination($passable);</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $pipeline(<span class="keyword">$this</span>-&gt;passable);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设我们用<code>pipeline-&gt;send(Object)-&gt;through([A, B, C])-&gt;then(D)</code>（ABCD都是应该是函数）。首先<code>array_reverse</code>将管道倒序，那么我们将得到如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$pipeline = array_reduce(</span><br><span class="line">    [C, B, A], </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> <span class="title">use</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> $pipe($passable, $stack);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;,</span><br><span class="line">    $reduce0 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> D($passable);</span><br><span class="line">    &#125;</span><br><span class="line">);</span><br><span class="line"><span class="comment">// 第一次reduce</span></span><br><span class="line">$reduce1 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> $reduce0($passable, $reduce0)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第二次reduce</span></span><br><span class="line">$reduce2 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> C($passable, $reduce1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第三次reduce</span></span><br><span class="line">$reduce3 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> B($passable, $reduce2)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第四次reduce</span></span><br><span class="line">$reduce4 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> A($passable, $reduce3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不妨换个思路，将<code>reduce0-4</code>理解为&quot;next&quot;：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$next = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> D($passable);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第一次reduce</span></span><br><span class="line">$next1 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> $r0($passable, $next)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第二次reduce</span></span><br><span class="line">$next2 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> C($passable, $next1)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第三次reduce</span></span><br><span class="line">$next3 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> B($passable, $next2)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 第四次reduce</span></span><br><span class="line">$next4 = <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> A($passable, $next3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么当我们调用<code>$pipeline(Object)</code>时，<code>next4</code>执行，即<code>A(obj, next)</code>函数得以执行，其获得参数<code>Object</code>和<code>next3</code>，倘若将<code>ABC</code>函数的返回值设置为<code>next(obj)</code>，整个<code>next</code>链路将被串联起来，最终执行到我们的<code>D</code>函数，正像一个管道一样！</p>
+<p>更有意思的是，如果我们只是调用<code>$rtn = next(obj)</code>而不直接返回，我们可以在其之后的管道操作完该对象依次出栈之后，获得并修改返回值，再传递给父级管道。这就是<a href="https://laravel.com/docs/5.8/middleware" target="_blank" rel="noopener">Before &amp; After Middleware</a>的原理。</p>
+<p>完整代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">carry</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> <span class="title">use</span> <span class="params">($stack, $pipe)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (is_callable($pipe)) &#123;</span><br><span class="line">                <span class="comment">// If the pipe is an instance of a Closure, we will just call it directly but</span></span><br><span class="line">                <span class="comment">// otherwise we'll resolve the pipes out of the container and call it with</span></span><br><span class="line">                <span class="comment">// the appropriate method and arguments, returning the results back out.</span></span><br><span class="line">                <span class="keyword">return</span> $pipe($passable, $stack);</span><br><span class="line">            &#125; <span class="keyword">elseif</span> (! is_object($pipe)) &#123;</span><br><span class="line">                <span class="keyword">list</span>($name, $parameters) = <span class="keyword">$this</span>-&gt;parsePipeString($pipe);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// If the pipe is a string we will parse the string and resolve the class out</span></span><br><span class="line">                <span class="comment">// of the dependency injection container. We can then build a callable and</span></span><br><span class="line">                <span class="comment">// execute the pipe function giving in the parameters that are required.</span></span><br><span class="line">                $pipe = <span class="keyword">$this</span>-&gt;getContainer()-&gt;make($name);</span><br><span class="line"></span><br><span class="line">                $parameters = array_merge([$passable, $stack], $parameters);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// If the pipe is already an object we'll just make a callable and pass it to</span></span><br><span class="line">                <span class="comment">// the pipe as-is. There is no need to do any extra parsing and formatting</span></span><br><span class="line">                <span class="comment">// since the object we're given was already a fully instantiated object.</span></span><br><span class="line">                $parameters = [$passable, $stack];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> method_exists($pipe, <span class="keyword">$this</span>-&gt;method)</span><br><span class="line">                            ? $pipe-&gt;&#123;<span class="keyword">$this</span>-&gt;method&#125;(...$parameters)</span><br><span class="line">                            : $pipe(...$parameters);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">prepareDestination</span><span class="params">(Closure $destination)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">($passable)</span> <span class="title">use</span> <span class="params">($destination)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $destination($passable);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-router" name="router"></a></p>
+<h2 id="router"><a class="markdownIt-Anchor" href="#router"></a> Router</h2>
+<p>在RouterServiceProvider启动时，会加载路由。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">boot</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;setRootControllerNamespace();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;app-&gt;routesAreCached()) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;loadCachedRoutes();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;loadRoutes();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;app-&gt;booted(<span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;app[<span class="string">'router'</span>]-&gt;getRoutes()-&gt;refreshNameLookups();</span><br><span class="line">            <span class="keyword">$this</span>-&gt;app[<span class="string">'router'</span>]-&gt;getRoutes()-&gt;refreshActionLookups();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">loadRoutes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (method_exists(<span class="keyword">$this</span>, <span class="string">'map'</span>)) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;app-&gt;call([<span class="keyword">$this</span>, <span class="string">'map'</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">map</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;mapApiRoutes();</span><br><span class="line">    <span class="keyword">$this</span>-&gt;mapWebRoutes();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以<code>mapWebRoutes</code>为例，它利用<code>RouteRegistrar</code>封装了路由，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">mapWebRoutes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Route::middleware(<span class="string">'web'</span>)</span><br><span class="line">            -&gt;namespace(<span class="keyword">$this</span>-&gt;namespace)</span><br><span class="line">            -&gt;group(base_path(<span class="string">'routes/web.php'</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Router</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span><span class="params">($method, $parameters)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">static</span>::hasMacro($method)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;macroCall($method, $parameters);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($method == <span class="string">'middleware'</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">new</span> RouteRegistrar(<span class="keyword">$this</span>))-&gt;attribute($method, is_array($parameters[<span class="number">0</span>]) ? $parameters[<span class="number">0</span>] : $parameters);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> RouteRegistrar(<span class="keyword">$this</span>))-&gt;attribute($method, $parameters[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后用group方法加载路由文件:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//RouteRegistrar</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">group</span><span class="params">($callback)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;router-&gt;group(<span class="keyword">$this</span>-&gt;attributes, $callback);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Router</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">group</span><span class="params">(array $attributes, $routes)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;updateGroupStack($attributes);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Once we have updated the group stack, we'll load the provided routes and</span></span><br><span class="line">    <span class="comment">// merge in the group's attributes when the routes are created. After we</span></span><br><span class="line">    <span class="comment">// have created the routes, we will pop the attributes off the stack.</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;loadRoutes($routes);</span><br><span class="line"></span><br><span class="line">    array_pop(<span class="keyword">$this</span>-&gt;groupStack);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">updateGroupStack</span><span class="params">(array $attributes)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (! <span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;groupStack)) &#123;</span><br><span class="line">        $attributes = RouteGroup::merge($attributes, end(<span class="keyword">$this</span>-&gt;groupStack));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;groupStack[] = $attributes;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">loadRoutes</span><span class="params">($routes)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ($routes <span class="keyword">instanceof</span> Closure) &#123;</span><br><span class="line">        $routes(<span class="keyword">$this</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        $router = <span class="keyword">$this</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">require</span> $routes;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Router维护了一个栈结构，只在当前栈中加载路由，加载后出栈，从而复用Router实例。这样既可以在多个路由文件中引用相同的Router，又减少了不必要的Router对象实例化开销。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get</span><span class="params">($uri, $action = null)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;addRoute([<span class="string">'GET'</span>, <span class="string">'HEAD'</span>], $uri, $action);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">addRoute</span><span class="params">($methods, $uri, $action)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;routes-&gt;add(<span class="keyword">$this</span>-&gt;createRoute($methods, $uri, $action));</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">createRoute</span><span class="params">($methods, $uri, $action)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// If the route is routing to a controller we will parse the route action into</span></span><br><span class="line">    <span class="comment">// an acceptable array format before registering it and creating this route</span></span><br><span class="line">    <span class="comment">// instance itself. We need to build the Closure that will call this out.</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;actionReferencesController($action)) &#123;</span><br><span class="line">        $action = <span class="keyword">$this</span>-&gt;convertToControllerAction($action);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $route = <span class="keyword">$this</span>-&gt;newRoute(</span><br><span class="line">        $methods, <span class="keyword">$this</span>-&gt;prefix($uri), $action</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we have groups that need to be merged, we will merge them now after this</span></span><br><span class="line">    <span class="comment">// route has already been created and is ready to go. After we're done with</span></span><br><span class="line">    <span class="comment">// the merge we will be ready to return the route back out to the caller.</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;hasGroupStack()) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mergeGroupAttributesIntoRoute($route);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;addWhereClausesToRoute($route);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $route;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-路由分发" name="路由分发"></a></p>
+<h3 id="路由分发"><a class="markdownIt-Anchor" href="#路由分发"></a> 路由分发</h3>
+<p>在请求经过一系列中间件后，最终将被分发到具体的Controller执行并生成响应。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">dispatchToRoute</span><span class="params">(Request $request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;runRoute($request, <span class="keyword">$this</span>-&gt;findRoute($request));</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">findRoute</span><span class="params">($request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;current = $route = <span class="keyword">$this</span>-&gt;routes-&gt;match($request);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;container-&gt;instance(Route::class, $route);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $route;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">runRoute</span><span class="params">(Request $request, Route $route)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $request-&gt;setRouteResolver(<span class="function"><span class="keyword">function</span> <span class="params">()</span> <span class="title">use</span> <span class="params">($route)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $route;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;events-&gt;dispatch(<span class="keyword">new</span> Events\RouteMatched($route, $request));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;prepareResponse($request,</span><br><span class="line">        <span class="keyword">$this</span>-&gt;runRouteWithinStack($route, $request)</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先匹配注册过的路由，然后执行<code>runRouteWithinStack</code>执行路由。一次请求的处理，除了要经过Application层面的中间件外，还需通过针对特定路由的中间件才能得以执行：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">runRouteWithinStack</span><span class="params">(Route $route, Request $request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $shouldSkipMiddleware = <span class="keyword">$this</span>-&gt;container-&gt;bound(<span class="string">'middleware.disable'</span>) &amp;&amp;</span><br><span class="line">                            <span class="keyword">$this</span>-&gt;container-&gt;make(<span class="string">'middleware.disable'</span>) === <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    $middleware = $shouldSkipMiddleware ? [] : <span class="keyword">$this</span>-&gt;gatherRouteMiddleware($route);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> Pipeline(<span class="keyword">$this</span>-&gt;container))</span><br><span class="line">                    -&gt;send($request)</span><br><span class="line">                    -&gt;through($middleware)</span><br><span class="line">                    -&gt;then(<span class="function"><span class="keyword">function</span> <span class="params">($request)</span> <span class="title">use</span> <span class="params">($route)</span> </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;prepareResponse(</span><br><span class="line">                            $request, $route-&gt;run()</span><br><span class="line">                        );</span><br><span class="line">                    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">gatherRouteMiddleware</span><span class="params">(Route $route)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $middleware = collect($route-&gt;gatherMiddleware())-&gt;map(<span class="function"><span class="keyword">function</span> <span class="params">($name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">array</span>) MiddlewareNameResolver::resolve($name, <span class="keyword">$this</span>-&gt;middleware, <span class="keyword">$this</span>-&gt;middlewareGroups);</span><br><span class="line">    &#125;)-&gt;flatten();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;sortMiddleware($middleware);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过管道后，最终路由到具体的执行函数。在执行控制器函数时，通过相同的技巧处理了依赖注入，这里就不再重复了。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">run</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;container = <span class="keyword">$this</span>-&gt;container ?: <span class="keyword">new</span> Container;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;isControllerAction()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;runController();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;runCallable();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (HttpResponseException $e) &#123;</span><br><span class="line">        <span class="keyword">return</span> $e-&gt;getResponse();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-response" name="response"></a></p>
+<h3 id="response"><a class="markdownIt-Anchor" href="#response"></a> Response</h3>
+<p>Response借助Symfony库对不同类型的响应进行检测，并格式化为统一的对象。然后通过<code>response-&gt;send()</code>将响应输出。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">prepareResponse</span><span class="params">($request, $response)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static</span>::toResponse($request, $response);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">toResponse</span><span class="params">($request, $response)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ($response <span class="keyword">instanceof</span> Responsable) &#123;</span><br><span class="line">        $response = $response-&gt;toResponse($request);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($response <span class="keyword">instanceof</span> PsrResponseInterface) &#123;</span><br><span class="line">        $response = (<span class="keyword">new</span> HttpFoundationFactory)-&gt;createResponse($response);</span><br><span class="line">    &#125; <span class="keyword">elseif</span> (! $response <span class="keyword">instanceof</span> SymfonyResponse &amp;&amp;</span><br><span class="line">                ($response <span class="keyword">instanceof</span> Arrayable ||</span><br><span class="line">                $response <span class="keyword">instanceof</span> Jsonable ||</span><br><span class="line">                $response <span class="keyword">instanceof</span> ArrayObject ||</span><br><span class="line">                $response <span class="keyword">instanceof</span> JsonSerializable ||</span><br><span class="line">                is_array($response))) &#123;</span><br><span class="line">        $response = <span class="keyword">new</span> JsonResponse($response);</span><br><span class="line">    &#125; <span class="keyword">elseif</span> (! $response <span class="keyword">instanceof</span> SymfonyResponse) &#123;</span><br><span class="line">        $response = <span class="keyword">new</span> Response($response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($response-&gt;getStatusCode() === Response::HTTP_NOT_MODIFIED) &#123;</span><br><span class="line">        $response-&gt;setNotModified();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $response-&gt;prepare($request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-程序退出" name="程序退出"></a></p>
+<h2 id="程序退出"><a class="markdownIt-Anchor" href="#程序退出"></a> 程序退出</h2>
+<p>此时程序响应已经发送出去，但还有一些工作需要处理。首先是Http Kernal遍历注册的中间件，处理它们的退出动作。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">terminate</span><span class="params">($request, $response)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;terminateMiddleware($request, $response);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;app-&gt;terminate();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">terminateMiddleware</span><span class="params">($request, $response)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $middlewares = <span class="keyword">$this</span>-&gt;app-&gt;shouldSkipMiddleware() ? [] : array_merge(</span><br><span class="line">        <span class="keyword">$this</span>-&gt;gatherRouteMiddleware($request),</span><br><span class="line">        <span class="keyword">$this</span>-&gt;middleware</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span> ($middlewares <span class="keyword">as</span> $middleware) &#123;</span><br><span class="line">        <span class="keyword">if</span> (! is_string($middleware)) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">list</span>($name) = <span class="keyword">$this</span>-&gt;parseMiddleware($middleware);</span><br><span class="line"></span><br><span class="line">        $instance = <span class="keyword">$this</span>-&gt;app-&gt;make($name);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (method_exists($instance, <span class="string">'terminate'</span>)) &#123;</span><br><span class="line">            $instance-&gt;terminate($request, $response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是Application处理程序中注册的程序退出回调。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">terminating</span><span class="params">(Closure $callback)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;terminatingCallbacks[] = $callback;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">terminate</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;terminatingCallbacks <span class="keyword">as</span> $terminating) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;call($terminating);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>全文完~ 后续会逐步介绍Laravel的各种组件原理，但生命周期是框架的基石，有任何问题，欢迎留言。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Laravel/" rel="tag"># Laravel</a>
+          
+            <a href="/tags/Framework/" rel="tag"># Framework</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/suggestion_for_starters/" rel="next" title="给PHP初学者的一些建议">
+                <i class="fa fa-chevron-left"></i> 给PHP初学者的一些建议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/syntax_configurable_const/" rel="prev" title="PHP 定义可配置的类常量">
+                PHP 定义可配置的类常量 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#application和container"><span class="nav-number">1.</span> <span class="nav-text"> Application和Container</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖注入"><span class="nav-number">2.</span> <span class="nav-text"> 依赖注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#serviceprovider"><span class="nav-number">3.</span> <span class="nav-text"> ServiceProvider</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#request"><span class="nav-number">4.</span> <span class="nav-text"> Request</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bootstrapper"><span class="nav-number">5.</span> <span class="nav-text"> Bootstrapper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境变量"><span class="nav-number">5.1.</span> <span class="nav-text"> 环境变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置文件"><span class="nav-number">5.2.</span> <span class="nav-text"> 配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常捕获"><span class="nav-number">5.3.</span> <span class="nav-text"> 异常捕获</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#facades"><span class="nav-number">5.4.</span> <span class="nav-text"> Facades</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#加载serviceprovider"><span class="nav-number">5.5.</span> <span class="nav-text"> 加载ServiceProvider</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pipeline和middleware"><span class="nav-number">6.</span> <span class="nav-text"> Pipeline和Middleware</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#router"><span class="nav-number">7.</span> <span class="nav-text"> Router</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由分发"><span class="nav-number">7.1.</span> <span class="nav-text"> 路由分发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#response"><span class="nav-number">7.2.</span> <span class="nav-text"> Response</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序退出"><span class="nav-number">8.</span> <span class="nav-text"> 程序退出</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = '理解Laravel框架运行机制'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

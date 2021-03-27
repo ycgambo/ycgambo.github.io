@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,Zend Engine,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="SAPI作为PHP程序的入口，封装了cli-命令行、cgi-PHP CLI vs. PHP CGI、embed-C/C++接口、fpm-FastCGI Process Manager、phpdbg-gdb版本、lightspeed-lightspeed服务等一些API服务。 先看一下比较简单的cli模式。在php-src中sapi/cli目录下的php-cli.c文件。 目录：   Cli程序流">
+<meta name="keywords" content="PHP,Zend Engine">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP代码的一生（一）从php-cli说起">
+<meta property="og:url" content="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_1/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="SAPI作为PHP程序的入口，封装了cli-命令行、cgi-PHP CLI vs. PHP CGI、embed-C/C++接口、fpm-FastCGI Process Manager、phpdbg-gdb版本、lightspeed-lightspeed服务等一些API服务。 先看一下比较简单的cli模式。在php-src中sapi/cli目录下的php-cli.c文件。 目录：   Cli程序流">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.phpinternalsbook.com/_images/php_classic_lifetime.png">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.043Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP代码的一生（一）从php-cli说起">
+<meta name="twitter:description" content="SAPI作为PHP程序的入口，封装了cli-命令行、cgi-PHP CLI vs. PHP CGI、embed-C/C++接口、fpm-FastCGI Process Manager、phpdbg-gdb版本、lightspeed-lightspeed服务等一些API服务。 先看一下比较简单的cli模式。在php-src中sapi/cli目录下的php-cli.c文件。 目录：   Cli程序流">
+<meta name="twitter:image" content="http://www.phpinternalsbook.com/_images/php_classic_lifetime.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_1/">
+
+
+
+
+
+  <title>PHP代码的一生（一）从php-cli说起 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP代码的一生（一）从php-cli说起</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-30T00:00:00+08:00">
+                2018-07-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/engine_general_lifetime_of_php_code_1/" class="leancloud_visitors" data-flag-title="PHP代码的一生（一）从php-cli说起">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>SAPI</code>作为PHP程序的入口，封装了<code>cli</code>-命令行、<code>cgi</code>-<a href="http://www.php-cli.com/php-cli-cgi.shtml" target="_blank" rel="noopener">PHP CLI vs. PHP CGI</a>、<code>embed</code>-C/C++接口、<code>fpm</code>-FastCGI Process Manager、<code>phpdbg</code>-gdb版本、<code>lightspeed</code>-lightspeed服务等一些API服务。</p>
+<p>先看一下比较简单的<code>cli</code>模式。在<code>php-src</code>中<code>sapi/cli</code>目录下的<code>php-cli.c</code>文件。</p>
+<p>目录：</p>
+<!-- TOC depthFrom:1 depthTo:3 insertAnchor:true orderedList:false withLinks:true -->
+<ul>
+<li><a href="#cli%E7%A8%8B%E5%BA%8F%E6%B5%81">Cli程序流</a></li>
+<li><a href="#minit-php_module_startup"><code>MINIT()</code>: php_module_startup</a>
+<ul>
+<li><a href="#zend%E5%BC%95%E6%93%8E%E7%9A%84%E5%90%AF%E5%8A%A8-zend_start">Zend引擎的启动: zend_start</a></li>
+</ul>
+</li>
+<li><a href="#rinit-php_request_startup"><code>RINIT()</code>: php_request_startup</a></li>
+<li><a href="#%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%85%A5%E5%8F%A3-php_execute_script">执行代码入口: php_execute_script</a>
+<ul>
+<li><a href="#%E8%BD%AC%E4%BA%A4%E7%BB%99zend%E5%BC%95%E6%93%8Ezend_execute_scripts">转交给Zend引擎，zend_execute_scripts</a></li>
+<li><a href="#opcode%E7%9A%84%E7%94%9F%E6%88%90zend_compile">opcode的生成，zend_compile</a></li>
+<li><a href="#opcode%E7%9A%84%E6%89%A7%E8%A1%8Czend_execute">opcode的执行，zend_execute</a></li>
+</ul>
+</li>
+<li><a href="#%E9%A2%98%E5%A4%96%E8%AF%9Dphp%E7%9A%84%E5%90%84%E7%A7%8D%E6%A8%A1%E5%BC%8F">题外话，PHP的各种模式</a>
+<ul>
+<li><a href="#php_mode_standard">PHP_MODE_STANDARD</a></li>
+<li><a href="#php_mode_lint">PHP_MODE_LINT</a></li>
+<li><a href="#php_mode_strip">PHP_MODE_STRIP</a></li>
+<li><a href="#php_mode_highlight">PHP_MODE_HIGHLIGHT</a></li>
+<li><a href="#php_mode_cli_direct">PHP_MODE_CLI_DIRECT</a></li>
+<li><a href="#php_mode_process_stdin">PHP_MODE_PROCESS_STDIN</a></li>
+<li><a href="#php_mode_show_ini_config">PHP_MODE_SHOW_INI_CONFIG</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<blockquote>
+<p>代码是PHP7.1.16的官方release版本 <a href="https://github.com/php/php-src/tree/PHP-7.1.16" target="_blank" rel="noopener">下载</a></p>
+</blockquote>
+<p><a id="markdown-cli程序流" name="cli程序流"></a></p>
+<h2 id="cli程序流"><a class="markdownIt-Anchor" href="#cli程序流"></a> Cli程序流</h2>
+<p><code>main</code>函数主要进行了命令行参数处理和全局变量<code>sapi_module</code>的赋值和初始化。</p>
+<p><code>sapi_module</code>是一个<code>sapi_module_struct</code>结构体，包含了sapi模块的一些信息，不同的模块都会各自定义一个sapi全局变量。如<code>cli_sapi_module</code>、<code>fpm_sapi_module</code>等。<br>
+其中的<code>startup</code>会在sapi启动时调用，是对<code>php_module_startup</code>的一层简单抽象。</p>
+<p><code>php_module_startup</code>之后，调用<code>do_cli</code>进入命令行的具体处理逻辑。</p>
+<p>PHP经典生命周期请参考<a href="http://www.phpinternalsbook.com/php7/extensions_design/php_lifecycle.html" target="_blank" rel="noopener">Learning the PHP lifecycle</a>及其中的这张图：<br>
+<img src="http://www.phpinternalsbook.com/_images/php_classic_lifetime.png" alt="php_classic_lifetime"></p>
+<p>有关<code>sapi_module_struct</code>的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">sapi_module_struct</span> <span class="title">sapi_module_struct</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">sapi_module_struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> *name;</span><br><span class="line">    <span class="keyword">char</span> *pretty_name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*startup)(struct _sapi_module_struct *sapi_module);</span><br><span class="line">    <span class="keyword">int</span> (*shutdown)(struct _sapi_module_struct *sapi_module);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*activate)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">int</span> (*deactivate)(<span class="keyword">void</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">size_t</span> (*ub_write)(<span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">size_t</span> str_length);</span><br><span class="line">    <span class="keyword">void</span> (*flush)(<span class="keyword">void</span> *server_context);</span><br><span class="line">    <span class="keyword">zend_stat_t</span> *(*get_stat)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">char</span> *(*getenv)(<span class="keyword">char</span> *name, <span class="keyword">size_t</span> name_len);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> (*sapi_error)(<span class="keyword">int</span> type, <span class="keyword">const</span> <span class="keyword">char</span> *error_msg, ...) ZEND_ATTRIBUTE_FORMAT(<span class="built_in">printf</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*header_handler)(sapi_header_struct *sapi_header, sapi_header_op_enum op, sapi_headers_struct *sapi_headers);</span><br><span class="line">    <span class="keyword">int</span> (*send_headers)(sapi_headers_struct *sapi_headers);</span><br><span class="line">    <span class="keyword">void</span> (*send_header)(sapi_header_struct *sapi_header, <span class="keyword">void</span> *server_context);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">size_t</span> (*read_post)(<span class="keyword">char</span> *buffer, <span class="keyword">size_t</span> count_bytes);</span><br><span class="line">    <span class="keyword">char</span> *(*read_cookies)(<span class="keyword">void</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> (*register_server_variables)(zval *track_vars_array);</span><br><span class="line">    <span class="keyword">void</span> (*log_message)(<span class="keyword">char</span> *message, <span class="keyword">int</span> syslog_type_int);</span><br><span class="line">    <span class="keyword">double</span> (*get_request_time)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">void</span> (*terminate_process)(<span class="keyword">void</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> *php_ini_path_override;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> (*default_post_reader)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">void</span> (*treat_data)(<span class="keyword">int</span> arg, <span class="keyword">char</span> *str, zval *destArray);</span><br><span class="line">    <span class="keyword">char</span> *executable_location;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> php_ini_ignore;</span><br><span class="line">    <span class="keyword">int</span> php_ini_ignore_cwd; <span class="comment">/* don't look for php.ini in the current directory */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*get_fd)(<span class="keyword">int</span> *fd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*force_http_10)(<span class="keyword">void</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> (*get_target_uid)(<span class="keyword">uid_t</span> *);</span><br><span class="line">    <span class="keyword">int</span> (*get_target_gid)(<span class="keyword">gid_t</span> *);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">int</span> <span class="params">(*input_filter)</span><span class="params">(<span class="keyword">int</span> arg, <span class="keyword">char</span> *var, <span class="keyword">char</span> **val, <span class="keyword">size_t</span> val_len, <span class="keyword">size_t</span> *new_val_len)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> (*ini_defaults)(HashTable *configuration_hash);</span><br><span class="line">    <span class="keyword">int</span> phpinfo_as_text;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> *ini_entries;</span><br><span class="line">    <span class="keyword">const</span> zend_function_entry *additional_functions;</span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">int</span> <span class="params">(*input_filter_init)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>cli_sapi_module</code>的实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> sapi_module_struct cli_sapi_module = &#123;</span><br><span class="line">    <span class="string">"cli"</span>,                          <span class="comment">/* name */</span></span><br><span class="line">    <span class="string">"Command Line Interface"</span>,       <span class="comment">/* pretty name */</span></span><br><span class="line"></span><br><span class="line">    php_cli_startup,                <span class="comment">/* startup */</span></span><br><span class="line">    php_module_shutdown_wrapper,    <span class="comment">/* shutdown */</span></span><br><span class="line"></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* activate */</span></span><br><span class="line">    sapi_cli_deactivate,            <span class="comment">/* deactivate */</span></span><br><span class="line"></span><br><span class="line">    sapi_cli_ub_write,              <span class="comment">/* unbuffered write */</span></span><br><span class="line">    sapi_cli_flush,                 <span class="comment">/* flush */</span></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* get uid */</span></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* getenv */</span></span><br><span class="line"></span><br><span class="line">    php_error,                      <span class="comment">/* error handler */</span></span><br><span class="line"></span><br><span class="line">    sapi_cli_header_handler,        <span class="comment">/* header handler */</span></span><br><span class="line">    sapi_cli_send_headers,          <span class="comment">/* send headers handler */</span></span><br><span class="line">    sapi_cli_send_header,           <span class="comment">/* send header handler */</span></span><br><span class="line"></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* read POST data */</span></span><br><span class="line">    sapi_cli_read_cookies,          <span class="comment">/* read Cookies */</span></span><br><span class="line"></span><br><span class="line">    sapi_cli_register_variables,    <span class="comment">/* register server variables */</span></span><br><span class="line">    sapi_cli_log_message,           <span class="comment">/* Log message */</span></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* Get request time */</span></span><br><span class="line">    <span class="literal">NULL</span>,                           <span class="comment">/* Child terminate */</span></span><br><span class="line"></span><br><span class="line">    STANDARD_SAPI_MODULE_PROPERTIES <span class="comment">/* 这是一个工具宏 */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-minit-php_module_startup" name="minit-php_module_startup"></a></p>
+<h2 id="minit-php_module_startup"><a class="markdownIt-Anchor" href="#minit-php_module_startup"></a> <code>MINIT()</code>: php_module_startup</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (sapi_module-&gt;startup(sapi_module) == FAILURE) &#123;</span><br><span class="line">    exit_status = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> out;</span><br><span class="line">&#125;</span><br><span class="line">module_started = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>上面的<code>startup</code>是一个函数指针，最终指向了<code>cli_sapi_module</code>中的<code>php_cli_startup</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">php_cli_startup</span><span class="params">(sapi_module_struct *sapi_module)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (php_module_startup(sapi_module, <span class="literal">NULL</span>, <span class="number">0</span>)==FAILURE) &#123;</span><br><span class="line">        <span class="keyword">return</span> FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>MINIT主要进行了:</p>
+<ul>
+<li>SAPI全局变量初始化</li>
+<li>请求和输出初始化</li>
+<li>PHP垃圾回收初始化</li>
+<li>Zend引擎zuf/zuv的注册及Zend引擎的启动</li>
+<li>PHP全局变量注册</li>
+<li>ini文件读取</li>
+<li>PHP模块和Zend扩展的注册和启动</li>
+<li>扩展函数和禁用函数</li>
+<li>关闭Zend内存管理</li>
+</ul>
+<p><a id="markdown-zend引擎的启动-zend_start" name="zend引擎的启动-zend_start"></a></p>
+<h3 id="zend引擎的启动-zend_start"><a class="markdownIt-Anchor" href="#zend引擎的启动-zend_start"></a> Zend引擎的启动: zend_start</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">1. 启动Zend内存管理</span><br><span class="line">    Zend为扩展提供了一套内存管理的API</span><br><span class="line">2. 默认的编译器:</span><br><span class="line">    zend_compile_file = compile_file;</span><br><span class="line">3. 默认的执行器:</span><br><span class="line">    zend_execute_ex = execute_ex;</span><br><span class="line">4. 默认的垃圾回收:</span><br><span class="line">    gc_collect_cycles = zend_gc_collect_cycles;</span><br><span class="line">5. 全局符号表初始化:</span><br><span class="line">    GLOBAL_FUNCTION_TABLE = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line">    GLOBAL_CLASS_TABLE = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line">    GLOBAL_AUTO_GLOBALS_TABLE = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line">    GLOBAL_CONSTANTS_TABLE = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line"></span><br><span class="line">    zend_hash_init_ex(GLOBAL_FUNCTION_TABLE, 1024, NULL, ZEND_FUNCTION_DTOR, 1, 0);</span><br><span class="line">    zend_hash_init_ex(GLOBAL_CLASS_TABLE, 64, NULL, ZEND_CLASS_DTOR, 1, 0);</span><br><span class="line">    zend_hash_init_ex(GLOBAL_AUTO_GLOBALS_TABLE, 8, NULL, auto_global_dtor, 1, 0);</span><br><span class="line">    zend_hash_init_ex(GLOBAL_CONSTANTS_TABLE, 128, NULL, ZEND_CONSTANT_DTOR, 1, 0);</span><br><span class="line">6. 相关全局变量初始化:</span><br><span class="line">    ts_allocate_id(&amp;compiler_globals_id, sizeof(zend_compiler_globals), (ts_allocate_ctor) compiler_globals_ctor, (ts_allocate_dtor) compiler_globals_dtor);</span><br><span class="line">    ts_allocate_id(&amp;executor_globals_id, sizeof(zend_executor_globals), (ts_allocate_ctor) executor_globals_ctor, (ts_allocate_dtor) executor_globals_dtor);</span><br><span class="line">    ts_allocate_id(&amp;language_scanner_globals_id, sizeof(zend_php_scanner_globals), (ts_allocate_ctor) php_scanner_globals_ctor, NULL);</span><br><span class="line">    ts_allocate_id(&amp;ini_scanner_globals_id, sizeof(zend_ini_scanner_globals), (ts_allocate_ctor) ini_scanner_globals_ctor, NULL);</span><br><span class="line">    compiler_globals = ts_resource(compiler_globals_id);</span><br><span class="line">    executor_globals = ts_resource(executor_globals_id);</span><br><span class="line"></span><br><span class="line">    compiler_globals_dtor(compiler_globals);</span><br><span class="line">    compiler_globals-&gt;in_compilation = 0;</span><br><span class="line">    compiler_globals-&gt;function_table = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line">    compiler_globals-&gt;class_table = (HashTable *) malloc(sizeof(HashTable));</span><br><span class="line"></span><br><span class="line">    *compiler_globals-&gt;function_table = *GLOBAL_FUNCTION_TABLE;</span><br><span class="line">    *compiler_globals-&gt;class_table = *GLOBAL_CLASS_TABLE;</span><br><span class="line">    compiler_globals-&gt;auto_globals = GLOBAL_AUTO_GLOBALS_TABLE;</span><br><span class="line">7. 默认的报错等级</span><br><span class="line">    EG(error_reporting) = E_ALL &amp; ~E_NOTICE;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-rinit-php_request_startup" name="rinit-php_request_startup"></a></p>
+<h2 id="rinit-php_request_startup"><a class="markdownIt-Anchor" href="#rinit-php_request_startup"></a> <code>RINIT()</code>: php_request_startup</h2>
+<p>回到<code>main</code>函数，接下来程序走到了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exit_status = do_cli(argc, argv);</span><br></pre></td></tr></table></figure>
+<p>在<code>do_cli</code>中，先做了参数分析，解析命令行支持的参数，对于标准模式的PHP代码会进入下面的<code>RINIT()</code>阶段，<code>sapi/cli/php_cli.c:964</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (php_request_startup()==FAILURE) &#123;</span><br><span class="line">    *arg_excp = arg_free;</span><br><span class="line">    fclose(file_handle.handle.fp);</span><br><span class="line">    PUTS(<span class="string">"Could not startup.\n"</span>);</span><br><span class="line">    <span class="keyword">goto</span> err;</span><br><span class="line">&#125;</span><br><span class="line">request_started = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>主要进行了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">1. 初始化输出handler栈结构，标记输出为激活状态</span><br><span class="line">    php_output_activate</span><br><span class="line">      |  zend_stack_init(&amp;OG(handlers), sizeof(php_output_handler *));</span><br><span class="line">      +  OG(flags) |= PHP_OUTPUT_ACTIVATED;</span><br><span class="line">2. gc、编译器、执行器、扫描器初始化</span><br><span class="line">    zend_activate</span><br><span class="line">      |  gc_reset();</span><br><span class="line">      |  init_compiler();</span><br><span class="line">      |  init_executor();</span><br><span class="line">      +  startup_scanner();</span><br><span class="line">3. SAPI全局变量初始化</span><br><span class="line">    RINIT其实已经初始化过一次了，可能是为了防止污染或者方便钩子函数钩取不同阶段</span><br><span class="line">4. 标记PHP module和SAPI状态为已启动</span><br><span class="line">    PG(modules_activated)=1;</span><br><span class="line">    SG(sapi_started) = 1;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-执行代码入口-php_execute_script" name="执行代码入口-php_execute_script"></a></p>
+<h2 id="执行代码入口-php_execute_script"><a class="markdownIt-Anchor" href="#执行代码入口-php_execute_script"></a> 执行代码入口: php_execute_script</h2>
+<p>接下来程序对PHP模式进行检测，对不同的模式进行相应的处理和响应。</p>
+<p>比如<code>PHP_MODE_LINT</code>分析PHP语法错误，而不执行PHP代码，而标准模式<code>PHP_MODE_STANDARD</code>，调用<code>php_execute_script</code>函数执行PHP代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> PHP_MODE_STANDARD:</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(file_handle.filename, <span class="string">"-"</span>)) &#123;</span><br><span class="line">        cli_register_file_handles();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (interactive &amp;&amp; cli_shell_callbacks.cli_shell_run) &#123;</span><br><span class="line">        exit_status = cli_shell_callbacks.cli_shell_run();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        php_execute_script(&amp;file_handle);</span><br><span class="line">        exit_status = EG(exit_status);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-转交给zend引擎zend_execute_scripts" name="转交给zend引擎zend_execute_scripts"></a></p>
+<h3 id="转交给zend引擎zend_execute_scripts"><a class="markdownIt-Anchor" href="#转交给zend引擎zend_execute_scripts"></a> 转交给Zend引擎，zend_execute_scripts</h3>
+<p>在<code>main/main.c:2484</code>定义了<code>php_execute_script</code>函数，在进行一些文件处理后，把脚本转交给Zend引擎：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">retval = (zend_execute_scripts(ZEND_REQUIRE, <span class="literal">NULL</span>, <span class="number">3</span>, prepend_file_p, primary_file, append_file_p) == SUCCESS);</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend.c:1462</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="keyword">int</span> <span class="title">zend_execute_scripts</span><span class="params">(<span class="keyword">int</span> type, zval *retval, <span class="keyword">int</span> file_count, ...)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    va_list files;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    zend_file_handle *file_handle;</span><br><span class="line">    zend_op_array *op_array;</span><br><span class="line"></span><br><span class="line">    va_start(files, file_count);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; file_count; i++) &#123;</span><br><span class="line">        file_handle = va_arg(files, zend_file_handle *);</span><br><span class="line">        <span class="keyword">if</span> (!file_handle) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        op_array = zend_compile_file(file_handle, type);</span><br><span class="line">        <span class="keyword">if</span> (file_handle-&gt;opened_path) &#123;</span><br><span class="line">            zend_hash_add_empty_element(&amp;EG(included_files), file_handle-&gt;opened_path);</span><br><span class="line">        &#125;</span><br><span class="line">        zend_destroy_file_handle(file_handle);</span><br><span class="line">        <span class="keyword">if</span> (op_array) &#123;</span><br><span class="line">            zend_execute(op_array, retval);</span><br><span class="line">            zend_exception_restore();</span><br><span class="line">            zend_try_exception_handler();</span><br><span class="line">            <span class="keyword">if</span> (EG(exception)) &#123;</span><br><span class="line">                zend_exception_error(EG(exception), E_ERROR);</span><br><span class="line">            &#125;</span><br><span class="line">            destroy_op_array(op_array);</span><br><span class="line">            efree_size(op_array, <span class="keyword">sizeof</span>(zend_op_array));</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type==ZEND_REQUIRE) &#123;</span><br><span class="line">            va_end(files);</span><br><span class="line">            <span class="keyword">return</span> FAILURE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    va_end(files);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有关<code>zend_op_array</code>的细节这里先不展开。</p>
+<p><a id="markdown-opcode的生成zend_compile" name="opcode的生成zend_compile"></a></p>
+<h3 id="opcode的生成zend_compile"><a class="markdownIt-Anchor" href="#opcode的生成zend_compile"></a> opcode的生成，zend_compile</h3>
+<p>在<code>zend_execute_scripts</code>中主要调用了两个函数，<code>zend_compile_file</code>和<code>zend_execute</code>。</p>
+<p><code>Zend/zend.c:716</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zend_compile_file = compile_file;</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_language_scanner.c:623</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API zend_op_array *<span class="title">compile_file</span><span class="params">(zend_file_handle *file_handle, <span class="keyword">int</span> type)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_lex_state original_lex_state;</span><br><span class="line">    zend_op_array *op_array = <span class="literal">NULL</span>;</span><br><span class="line">    zend_save_lexical_state(&amp;original_lex_state);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (open_file_for_scanning(file_handle)==FAILURE) &#123;</span><br><span class="line">        <span class="keyword">if</span> (type==ZEND_REQUIRE) &#123;</span><br><span class="line">            zend_message_dispatcher(ZMSG_FAILED_REQUIRE_FOPEN, file_handle-&gt;filename);</span><br><span class="line">            zend_bailout();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            zend_message_dispatcher(ZMSG_FAILED_INCLUDE_FOPEN, file_handle-&gt;filename);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        op_array = zend_compile(ZEND_USER_FUNCTION);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    zend_restore_lexical_state(&amp;original_lex_state);</span><br><span class="line">    <span class="keyword">return</span> op_array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有关<code>zend_compile</code>的细节这里先不展开。</p>
+<p><a id="markdown-opcode的执行zend_execute" name="opcode的执行zend_execute"></a></p>
+<h3 id="opcode的执行zend_execute"><a class="markdownIt-Anchor" href="#opcode的执行zend_execute"></a> opcode的执行，zend_execute</h3>
+<p><code>Zend/zend_vm_execute.h:457</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ZEND_API <span class="keyword">void</span> <span class="title">zend_execute</span><span class="params">(zend_op_array *op_array, zval *return_value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_execute_data *execute_data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (EG(exception) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    execute_data = zend_vm_stack_push_call_frame(ZEND_CALL_Topcode | ZEND_CALL_HAS_SYMBOL_TABLE,</span><br><span class="line">        (zend_function*)op_array, <span class="number">0</span>, zend_get_called_scope(EG(current_execute_data)), zend_get_this_object(EG(current_execute_data)));</span><br><span class="line">    <span class="keyword">if</span> (EG(current_execute_data)) &#123;</span><br><span class="line">        execute_data-&gt;symbol_table = zend_rebuild_symbol_table();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        execute_data-&gt;symbol_table = &amp;EG(symbol_table);</span><br><span class="line">    &#125;</span><br><span class="line">    EX(prev_execute_data) = EG(current_execute_data);</span><br><span class="line">    i_init_execute_data(execute_data, op_array, return_value);</span><br><span class="line">    zend_execute_ex(execute_data);</span><br><span class="line">    zend_vm_stack_free_call_frame(execute_data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有关<code>zend_execute</code>的细节这里先不展开。</p>
+<p><a id="markdown-题外话php的各种模式" name="题外话php的各种模式"></a></p>
+<h2 id="题外话php的各种模式"><a class="markdownIt-Anchor" href="#题外话php的各种模式"></a> 题外话，PHP的各种模式</h2>
+<p>上面提到，在PHP的RINIT阶段，PHP对不同的模式进行相应的处理和响应，这里挑一些解释一下。<br>
+<a id="markdown-php_mode_standard" name="php_mode_standard"></a></p>
+<h3 id="php_mode_standard"><a class="markdownIt-Anchor" href="#php_mode_standard"></a> PHP_MODE_STANDARD</h3>
+<p>PHP的默认执行模式，执行PHP脚本产生输出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> PHP_MODE_STANDARD:</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(file_handle.filename, <span class="string">"-"</span>)) &#123;</span><br><span class="line">        cli_register_file_handles();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (interactive &amp;&amp; cli_shell_callbacks.cli_shell_run) &#123;</span><br><span class="line">        exit_status = cli_shell_callbacks.cli_shell_run();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        php_execute_script(&amp;file_handle);</span><br><span class="line">        exit_status = EG(exit_status);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>此外，改模式还包含了<code>interactive</code>交互模式，通过<code>-a</code>参数进入。会进入交互的PHP上下文会话中。</p>
+<p><a id="markdown-php_mode_lint" name="php_mode_lint"></a></p>
+<h3 id="php_mode_lint"><a class="markdownIt-Anchor" href="#php_mode_lint"></a> PHP_MODE_LINT</h3>
+<p>语法分析模式，通过<code>-l</code>参数进入。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> PHP_MODE_LINT:</span><br><span class="line">    exit_status = php_lint_script(&amp;file_handle);</span><br><span class="line">    <span class="keyword">if</span> (exit_status==SUCCESS) &#123;</span><br><span class="line">        zend_printf(<span class="string">"No syntax errors detected in %s\n"</span>, file_handle.filename);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        zend_printf(<span class="string">"Errors parsing %s\n"</span>, file_handle.filename);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>尝试编译PHP代码为op_array，编译失败时抛出异常信息。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PHPAPI <span class="keyword">int</span> <span class="title">php_lint_script</span><span class="params">(zend_file_handle *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zend_op_array *op_array;</span><br><span class="line">    <span class="keyword">int</span> retval = FAILURE;</span><br><span class="line"></span><br><span class="line">    zend_try &#123;</span><br><span class="line">        op_array = zend_compile_file(file, ZEND_INCLUDE);</span><br><span class="line">        zend_destroy_file_handle(file);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (op_array) &#123;</span><br><span class="line">            destroy_op_array(op_array);</span><br><span class="line">            efree(op_array);</span><br><span class="line">            retval = SUCCESS;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; zend_end_try();</span><br><span class="line">    <span class="keyword">if</span> (EG(exception)) &#123;</span><br><span class="line">        zend_exception_error(EG(exception), E_ERROR);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> retval;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-php_mode_strip" name="php_mode_strip"></a></p>
+<h3 id="php_mode_strip"><a class="markdownIt-Anchor" href="#php_mode_strip"></a> PHP_MODE_STRIP</h3>
+<p><code>-w</code>参数进入，去除PHP文件中不必要的空格和换行，输出处理过的字符串。<br>
+产生的传和源文件在PHP语法扫描时会产生相同的TOKEN。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">case PHP_MODE_STRIP:</span><br><span class="line">    if (open_file_for_scanning(&amp;file_handle)==SUCCESS) &#123;</span><br><span class="line">        zend_strip();</span><br><span class="line">    &#125;</span><br><span class="line">    goto out;</span><br><span class="line">    break;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-php_mode_highlight" name="php_mode_highlight"></a></p>
+<h3 id="php_mode_highlight"><a class="markdownIt-Anchor" href="#php_mode_highlight"></a> PHP_MODE_HIGHLIGHT</h3>
+<p><code>-s</code>参数进入，对PHP语法着色，产生的html串可直接用于浏览器渲染。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">case PHP_MODE_HIGHLIGHT:</span><br><span class="line">    &#123;</span><br><span class="line">        zend_syntax_highlighter_ini syntax_highlighter_ini;</span><br><span class="line"></span><br><span class="line">        if (open_file_for_scanning(&amp;file_handle)==SUCCESS) &#123;</span><br><span class="line">            php_get_highlight_struct(&amp;syntax_highlighter_ini);</span><br><span class="line">            zend_highlight(&amp;syntax_highlighter_ini);</span><br><span class="line">        &#125;</span><br><span class="line">        goto out;</span><br><span class="line">    &#125;</span><br><span class="line">    break;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-php_mode_cli_direct" name="php_mode_cli_direct"></a></p>
+<h3 id="php_mode_cli_direct"><a class="markdownIt-Anchor" href="#php_mode_cli_direct"></a> PHP_MODE_CLI_DIRECT</h3>
+<p><code>-r</code>参数进入，直接运行一行PHP代码。如<code>php -r &quot;echo 123;&quot;</code></p>
+<p><code>zend_eval_string_ex</code>和<code>zend_execute_scripts</code>类似，不过前者编译的是一个串，后者编译的是一个PHP文件。</p>
+<p>此外<code>zend_eval_string_ex</code>没有<code>RINIT</code>的过程，因而会避过一些插件的钩子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">case PHP_MODE_CLI_DIRECT:</span><br><span class="line">    cli_register_file_handles();</span><br><span class="line">    if (zend_eval_string_ex(exec_direct, NULL, &quot;Command line code&quot;, 1) == FAILURE) &#123;</span><br><span class="line">        exit_status=254;</span><br><span class="line">    &#125;</span><br><span class="line">    break;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-php_mode_process_stdin" name="php_mode_process_stdin"></a></p>
+<h3 id="php_mode_process_stdin"><a class="markdownIt-Anchor" href="#php_mode_process_stdin"></a> PHP_MODE_PROCESS_STDIN</h3>
+<p>程序阻塞在一个循环中，执行每一行输入，直到用户中断或异常退出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">case PHP_MODE_PROCESS_STDIN:</span><br><span class="line">    char *input;</span><br><span class="line">    size_t len, index = 0;</span><br><span class="line">    zval argn, argi;</span><br><span class="line"></span><br><span class="line">    cli_register_file_handles();</span><br><span class="line"></span><br><span class="line">    if (exec_begin &amp;&amp; zend_eval_string_ex(exec_begin, NULL, &quot;Command line begin code&quot;, 1) == FAILURE) &#123;</span><br><span class="line">        exit_status=254;</span><br><span class="line">    &#125;</span><br><span class="line">    while (exit_status == SUCCESS &amp;&amp; (input=php_stream_gets(s_in_process, NULL, 0)) != NULL) &#123;</span><br><span class="line">        len = strlen(input);</span><br><span class="line">        while (len &gt; 0 &amp;&amp; len-- &amp;&amp; (input[len]==&apos;\n&apos; || input[len]==&apos;\r&apos;)) &#123;</span><br><span class="line">            input[len] = &apos;\0&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">        ZVAL_STRINGL(&amp;argn, input, len + 1);</span><br><span class="line">        zend_hash_str_update(&amp;EG(symbol_table), &quot;argn&quot;, sizeof(&quot;argn&quot;)-1, &amp;argn);</span><br><span class="line">        ZVAL_LONG(&amp;argi, ++index);</span><br><span class="line">        zend_hash_str_update(&amp;EG(symbol_table), &quot;argi&quot;, sizeof(&quot;argi&quot;)-1, &amp;argi);</span><br><span class="line">        if (exec_run) &#123;</span><br><span class="line">            if (zend_eval_string_ex(exec_run, NULL, &quot;Command line run code&quot;, 1) == FAILURE) &#123;</span><br><span class="line">                exit_status=254;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (script_file) &#123;</span><br><span class="line">                if (cli_seek_file_begin(&amp;file_handle, script_file, &amp;lineno) != SUCCESS) &#123;</span><br><span class="line">                    exit_status = 1;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    CG(start_lineno) = lineno;</span><br><span class="line">                    php_execute_script(&amp;file_handle);</span><br><span class="line">                    exit_status = EG(exit_status);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        efree(input);</span><br><span class="line">    &#125;</span><br><span class="line">    if (exec_end &amp;&amp; zend_eval_string_ex(exec_end, NULL, &quot;Command line end code&quot;, 1) == FAILURE) &#123;</span><br><span class="line">        exit_status=254;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    break;</span><br></pre></td></tr></table></figure>
+<p><a id="markdown-php_mode_show_ini_config" name="php_mode_show_ini_config"></a></p>
+<h3 id="php_mode_show_ini_config"><a class="markdownIt-Anchor" href="#php_mode_show_ini_config"></a> PHP_MODE_SHOW_INI_CONFIG</h3>
+<p><code>--ini</code>进入。显示编译后的PHP，会在哪里搜索配置文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">case PHP_MODE_SHOW_INI_CONFIG:</span><br><span class="line">    zend_printf(&quot;Configuration File (php.ini) Path: %s\n&quot;, PHP_CONFIG_FILE_PATH);</span><br><span class="line">    zend_printf(&quot;Loaded Configuration File:         %s\n&quot;, php_ini_opened_path ? php_ini_opened_path : &quot;(none)&quot;);</span><br><span class="line">    zend_printf(&quot;Scan for additional .ini files in: %s\n&quot;, php_ini_scanned_path  ? php_ini_scanned_path : &quot;(none)&quot;);</span><br><span class="line">    zend_printf(&quot;Additional .ini files parsed:      %s\n&quot;, php_ini_scanned_files ? php_ini_scanned_files : &quot;(none)&quot;);</span><br><span class="line">    break;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>除了上面这些PHP模式所涉及的参数外，还有<code>-d</code>、<code>-m</code>两个参数也比较有用。</p>
+<p><code>-d</code>参数可以动态配置ini，这些配置会在PHP读取ini之前，即<code>MINIT</code>和<code>RINIT</code>之前生效。</p>
+<p><code>-m</code>参数打印php启动的模块和zend扩展：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">'m'</span>: <span class="comment">/* list compiled in modules */</span></span><br><span class="line">    <span class="keyword">if</span> (php_request_startup()==FAILURE) &#123;</span><br><span class="line">        <span class="keyword">goto</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">    request_started = <span class="number">1</span>;</span><br><span class="line">    php_printf(<span class="string">"[PHP Modules]\n"</span>);</span><br><span class="line">    print_modules();</span><br><span class="line">    php_printf(<span class="string">"\n[Zend Modules]\n"</span>);</span><br><span class="line">    print_extensions();</span><br><span class="line">    php_printf(<span class="string">"\n"</span>);</span><br><span class="line">    php_output_end_all();</span><br><span class="line">    exit_status=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">goto</span> out;</span><br></pre></td></tr></table></figure>
+<p><code>RINIT</code>阶段搜集扩展信息，通过<code>print_modules</code>和<code>print_extensions</code>打印出来。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Zend-Engine/" rel="tag"># Zend Engine</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/engine_why_isset_is_always_faster_than_array_key_exists/" rel="next" title="PHP 为什么isset总比array_key_exists快?">
+                <i class="fa fa-chevron-left"></i> PHP 为什么isset总比array_key_exists快?
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/engine_general_lifetime_of_php_code_2/" rel="prev" title="PHP代码的一生（二）一些结构体">
+                PHP代码的一生（二）一些结构体 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#cli程序流"><span class="nav-number">1.</span> <span class="nav-text"> Cli程序流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#minit-php_module_startup"><span class="nav-number">2.</span> <span class="nav-text"> MINIT(): php_module_startup</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#zend引擎的启动-zend_start"><span class="nav-number">2.1.</span> <span class="nav-text"> Zend引擎的启动: zend_start</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rinit-php_request_startup"><span class="nav-number">3.</span> <span class="nav-text"> RINIT(): php_request_startup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行代码入口-php_execute_script"><span class="nav-number">4.</span> <span class="nav-text"> 执行代码入口: php_execute_script</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#转交给zend引擎zend_execute_scripts"><span class="nav-number">4.1.</span> <span class="nav-text"> 转交给Zend引擎，zend_execute_scripts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#opcode的生成zend_compile"><span class="nav-number">4.2.</span> <span class="nav-text"> opcode的生成，zend_compile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#opcode的执行zend_execute"><span class="nav-number">4.3.</span> <span class="nav-text"> opcode的执行，zend_execute</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#题外话php的各种模式"><span class="nav-number">5.</span> <span class="nav-text"> 题外话，PHP的各种模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_standard"><span class="nav-number">5.1.</span> <span class="nav-text"> PHP_MODE_STANDARD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_lint"><span class="nav-number">5.2.</span> <span class="nav-text"> PHP_MODE_LINT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_strip"><span class="nav-number">5.3.</span> <span class="nav-text"> PHP_MODE_STRIP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_highlight"><span class="nav-number">5.4.</span> <span class="nav-text"> PHP_MODE_HIGHLIGHT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_cli_direct"><span class="nav-number">5.5.</span> <span class="nav-text"> PHP_MODE_CLI_DIRECT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_process_stdin"><span class="nav-number">5.6.</span> <span class="nav-text"> PHP_MODE_PROCESS_STDIN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php_mode_show_ini_config"><span class="nav-number">5.7.</span> <span class="nav-text"> PHP_MODE_SHOW_INI_CONFIG</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = 'PHP代码的一生（一）从php-cli说起'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

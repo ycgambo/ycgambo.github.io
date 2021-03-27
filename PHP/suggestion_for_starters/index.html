@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,推荐,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="很多人喜欢调侃“PHP是世界上最好的语言”，现在就让我们站在学习者的角度，严肃讨论一下这个问题。 希望通过这篇文章，你可以清楚了解到：  它所解决的问题是什么？ 它的局限是什么？ 它是否是一个适合你的语言？  目录：   PHP是什么  PHP是跨平台的 PHP是脚本语言 PHP投入成本低 PHP可以做很多 不要对它渴望太多   PHP的天花板 如何学习PHP">
+<meta name="keywords" content="PHP,推荐">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给PHP初学者的一些建议">
+<meta property="og:url" content="http://www.notee.cc/PHP/suggestion_for_starters/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="很多人喜欢调侃“PHP是世界上最好的语言”，现在就让我们站在学习者的角度，严肃讨论一下这个问题。 希望通过这篇文章，你可以清楚了解到：  它所解决的问题是什么？ 它的局限是什么？ 它是否是一个适合你的语言？  目录：   PHP是什么  PHP是跨平台的 PHP是脚本语言 PHP投入成本低 PHP可以做很多 不要对它渴望太多   PHP的天花板 如何学习PHP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.047Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给PHP初学者的一些建议">
+<meta name="twitter:description" content="很多人喜欢调侃“PHP是世界上最好的语言”，现在就让我们站在学习者的角度，严肃讨论一下这个问题。 希望通过这篇文章，你可以清楚了解到：  它所解决的问题是什么？ 它的局限是什么？ 它是否是一个适合你的语言？  目录：   PHP是什么  PHP是跨平台的 PHP是脚本语言 PHP投入成本低 PHP可以做很多 不要对它渴望太多   PHP的天花板 如何学习PHP">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/suggestion_for_starters/">
+
+
+
+
+
+  <title>给PHP初学者的一些建议 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/suggestion_for_starters/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">给PHP初学者的一些建议</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-24T13:16:09+08:00">
+                2019-02-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/suggestion_for_starters/" class="leancloud_visitors" data-flag-title="给PHP初学者的一些建议">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>很多人喜欢调侃“PHP是世界上最好的语言”，现在就让我们站在学习者的角度，严肃讨论一下这个问题。</p>
+<p>希望通过这篇文章，你可以清楚了解到：</p>
+<ol>
+<li>它所解决的问题是什么？</li>
+<li>它的局限是什么？</li>
+<li>它是否是一个适合你的语言？</li>
+</ol>
+<p>目录：</p>
+<!-- TOC depthFrom:1 depthTo:3 insertAnchor:true orderedList:false withLinks:true -->
+<ul>
+<li><a href="#php%E6%98%AF%E4%BB%80%E4%B9%88">PHP是什么</a>
+<ul>
+<li><a href="#php%E6%98%AF%E8%B7%A8%E5%B9%B3%E5%8F%B0%E7%9A%84">PHP是跨平台的</a></li>
+<li><a href="#php%E6%98%AF%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80">PHP是脚本语言</a></li>
+<li><a href="#php%E6%8A%95%E5%85%A5%E6%88%90%E6%9C%AC%E4%BD%8E">PHP投入成本低</a></li>
+<li><a href="#php%E5%8F%AF%E4%BB%A5%E5%81%9A%E5%BE%88%E5%A4%9A">PHP可以做很多</a></li>
+<li><a href="#%E4%B8%8D%E8%A6%81%E5%AF%B9%E5%AE%83%E6%B8%B4%E6%9C%9B%E5%A4%AA%E5%A4%9A">不要对它渴望太多</a></li>
+</ul>
+</li>
+<li><a href="#php%E7%9A%84%E5%A4%A9%E8%8A%B1%E6%9D%BF">PHP的天花板</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E5%AD%A6%E4%B9%A0php">如何学习PHP</a></li>
+</ul>
+<!-- /TOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<p><a id="markdown-php是什么" name="php是什么"></a></p>
+<h2 id="php是什么"><a class="markdownIt-Anchor" href="#php是什么"></a> PHP是什么</h2>
+<p>在一切开始之前，我假设你对PHP稍有了解，但进行了更大角度的解释，希望你可以对它有更清晰的宏观轮廓。</p>
+<p>关于PHP的定义，<a href="http://php.net/manual/zh/intro-whatis.php" target="_blank" rel="noopener">官网的解释</a>对初学者比较生涩：</p>
+<blockquote>
+<p>PHP（“PHP: Hypertext Preprocessor”，超文本预处理器的字母缩写）是一种被广泛应用的开放源代码的多用途脚本语言，它可嵌入到 HTML中，尤其适合 web 开发。</p>
+</blockquote>
+<p><a id="markdown-php是跨平台的" name="php是跨平台的"></a></p>
+<h3 id="php是跨平台的"><a class="markdownIt-Anchor" href="#php是跨平台的"></a> PHP是跨平台的</h3>
+<p>PHP可以运行在Windows、Linux、Unix、OSX等操作系统之上。OSX默认安装了PHP，其他平台一般需要安装PHP的运行环境才能运行PHP程序。</p>
+<p>所谓PHP的运行环境其实是一套C语言写的PHP语法解释和执行的软件，以PHP代码可以运行在任何可以安装并执行这套运行环境的操作系统上。</p>
+<p><a id="markdown-php是脚本语言" name="php是脚本语言"></a></p>
+<h3 id="php是脚本语言"><a class="markdownIt-Anchor" href="#php是脚本语言"></a> PHP是脚本语言</h3>
+<p>C语言这类编译型语言则需要在修改后重新编译，利用编译好的新的文件来执行。PHP在执行的时候，会读取代码，然后运用PHP运行环境的能力和操作系统交互，所以代码修改后，重新运行程序即可获得最新的代码执行结果。</p>
+<p>在大型软件构建中，编译发布过程往往耗时数小时甚至更久，这就是为什么PHP语言开发快速的原因。但凡事有利有弊，编译过的软件对操作系统更加友好，执行速度会更快，所以PHP软件是通过牺牲运行时性能来获取高效率的开发的。</p>
+<p>不过牺牲的这点运行性能对PHP来说是无可厚非的，因为PHP的高效开发特点决定了它所面对的应用场景是起步阶段的业务，此时软件的功能和服务才是最重要的，尤其是在飞速发展的互联网时代，只有快速做出业绩使得企业能够生存下去，才有资本去考虑大流量所带来的性能瓶颈。通俗点说，来的客户多了，赚的钱就多了，服务器不够我再加就完事儿了。</p>
+<p><a id="markdown-php投入成本低" name="php投入成本低"></a></p>
+<h3 id="php投入成本低"><a class="markdownIt-Anchor" href="#php投入成本低"></a> PHP投入成本低</h3>
+<p>PHP是开源免费软件，同时操作系统Linux、常用的数据库软件MySQL/Redis、以及Web服务器软件Apache/Nginx也都是免费的，这就意味着PHP软件的运行只需要负担物理服务器的费用即可。同时PHP入门简单，培训和开发成本也相对较低。</p>
+<p>对有其它服务端语言基础的人，在手册的帮助下，几天甚至数小时就可以上手这门语言。社区是PHP的真正力量，无数的PHP资源都会逐步向你敞开。</p>
+<p><a id="markdown-php可以做很多" name="php可以做很多"></a></p>
+<h3 id="php可以做很多"><a class="markdownIt-Anchor" href="#php可以做很多"></a> PHP可以做很多</h3>
+<p>PHP在诞生的时候，是为了解决C语言开发网站的繁琐，这也是PHP目前最主要的功能，最流行的博客系统WordPress正是PHP所开发的。</p>
+<p>除了搭网站，PHP作为服务端语言，也会被用来写网络API，为客户端程序提供服务支持。</p>
+<p>在非CPU密集型的操作上，对于熟悉PHP语言的人来说，借助PHP工具包，可以快速开发出功能脚本。</p>
+<p>很少有人知道，PHP在GUI桌面应用上也有发挥空间。</p>
+<p><a id="markdown-不要对它渴望太多" name="不要对它渴望太多"></a></p>
+<h3 id="不要对它渴望太多"><a class="markdownIt-Anchor" href="#不要对它渴望太多"></a> 不要对它渴望太多</h3>
+<p>随着业务的逐渐壮大，和开发人员不规范的代码产出，PHP的性能瓶颈可能三到五年就达到了。庞大的代码库在代码层面优化起来杯水车薪，盼望PHP引擎的性能升级是不现实的，所以大部分公司成熟起来之后开始用Java/Golang甚至C语言等逐步替换PHP服务，以达到更高的并发要求。</p>
+<p>同时CPU密集型的操作也不是PHP的领域，不过有可能通过调用其他语言的API来集成这些操作。</p>
+<p>不过也不要悲观，就比如卖早报，一辆自行车就能覆盖到一个社区，当业务庞大起来，企业有了资本积累，自然会换摩托车、甚至汽车，但一开始总需要自行车。</p>
+<p>当你摸到PHP的天花板时，自然会寻找新的上升通道。</p>
+<p><a id="markdown-php的天花板" name="php的天花板"></a></p>
+<h2 id="php的天花板"><a class="markdownIt-Anchor" href="#php的天花板"></a> PHP的天花板</h2>
+<p>通过上面的解释，你是否对PHP在应用维度上有了更清晰的理解？在学习PHP之前，有必要先对PHP的天花板有一个简单的了解。</p>
+<p>PHP开发者主要分为三个群体：</p>
+<ol>
+<li>网站开发者，将PHP嵌入到网页中进行网页内容开发</li>
+<li>API开发者，和网页内容展示无交集</li>
+<li>PHP工具开发者，为其他软件提供PHP版本的接口</li>
+</ol>
+<p>网站开发者是大多数PHP开发者入门时的一个阶段，需要学习前端知识(HTML/CSS/JavaScript等)，把PHP脚本嵌入到HTML中，最终生成动态的网站内容。 这相当于是PHP的小学阶段 – 老老实实写1000字作文。除非使用框架，否则网站开发者很难融入PHP社区之中，代码量产出很大，但是完成功能很慢，这时候会有很大的学习空间。API开发者一般采用某种PHP框架协助开发，通过框架，会逐步加深开发者对PHP包的依赖(即对社区的依赖)，这时候会有大量的名词需要了解和学习。而PHP工具开发者就是为PHP生态注入新名词的元素，由于可能只是向PHP生态圈引入自己的产品，他们甚至只需要了解PHP的语法即可。</p>
+<p>会介意PHP天花板的主要在于前两类群体：<strong>对语言的了解很快停滞不前，对工具的了解越来越多，但是PHP生态发展速度太慢，无法随心所欲地去操纵某些工具。</strong></p>
+<p>变通方法一般有三种：</p>
+<ol>
+<li>从开发者转变为管理人员，为业务决策做更多贡献</li>
+<li>从开发者转变为工具开发者，为社区贡献力量(工作中一般没有这种机会)</li>
+<li>在已有知识的基础上，可以选用更合适的语言</li>
+</ol>
+<p>简而言之，由于PHP社区的狭隘(注重Web技术，其它技术类型的开发者很少主动融入)，最终产生了窘境：<strong>资历所带来的知识不能为开发带来更多优势：业务所需要的，PHP不能产出；PHP能产出的，不需老古董也能产出</strong></p>
+<p><a id="markdown-如何学习php" name="如何学习php"></a></p>
+<h2 id="如何学习php"><a class="markdownIt-Anchor" href="#如何学习php"></a> 如何学习PHP</h2>
+<p>如果你决定了开始学习这门语言，那么我用这几年踩的坑，给出一些建议。</p>
+<p>PHP承担了世界上80%左右的网站，PHP开发的WordPress承担了世界上30%以上的网站，60%以上的CMS系统，因此PHP是值得一试的。</p>
+<p>在学习PHP之前，建议先了解一下WordPress，如果你的目的是学习建设网站，你甚至可以不必学习任何一行PHP代码，就能拥有功能强大的网站。</p>
+<p>如果你想使用PHP作为API开发工具，那么你可以完全不去理会任何HTML/CSS/JavaScript/Jquery等前端相关知识，作为后端开发者，数据结构和数据交互才是开发工作的重心。</p>
+<p>至于具体的学习方法，我推荐以下内容：</p>
+<ol>
+<li><a href="php.net">PHP文档</a></li>
+<li><a href="https://phptherightway.com" target="_blank" rel="noopener">PHP the right way</a></li>
+<li>《Modern PHP》</li>
+<li>《PHP Objects, Patterns, and Practice》</li>
+</ol>
+<p>现在PHP已经普遍使用PHP7版本，关于PHP5的内容可以作为了解，暂且不必太过深入。</p>
+<p>Mysql数据库操作是PHP开发者必不可少的技能：</p>
+<ol>
+<li>《Mysql必知必会》</li>
+<li>《Pro Mysql》</li>
+<li>《MySQL技术内幕 InnoDB存储引擎》</li>
+</ol>
+<p>还有其它重要的工具:</p>
+<ol>
+<li>PHPStorm + Vim</li>
+<li>Composer + <a href="http://Packagist.org" target="_blank" rel="noopener">Packagist.org</a></li>
+<li>Apache + Nginx</li>
+<li><a href="http://3v4l.org" target="_blank" rel="noopener">3v4l.org</a></li>
+<li>Github + git</li>
+<li>Laravel</li>
+<li>Regex</li>
+<li>Redis</li>
+</ol>
+<p>PHP既然是服务端语言，Linux当然也是了解的越多越好。其它的深入内容，船到桥头自然直。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/推荐/" rel="tag"># 推荐</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/syntax_time_and_timezone/" rel="next" title="PHP 时间与时区你用对了吗？">
+                <i class="fa fa-chevron-left"></i> PHP 时间与时区你用对了吗？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Laravel/understanding_laravel_lifetime/" rel="prev" title="理解Laravel框架运行机制">
+                理解Laravel框架运行机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#php是什么"><span class="nav-number">1.</span> <span class="nav-text"> PHP是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#php是跨平台的"><span class="nav-number">1.1.</span> <span class="nav-text"> PHP是跨平台的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php是脚本语言"><span class="nav-number">1.2.</span> <span class="nav-text"> PHP是脚本语言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php投入成本低"><span class="nav-number">1.3.</span> <span class="nav-text"> PHP投入成本低</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php可以做很多"><span class="nav-number">1.4.</span> <span class="nav-text"> PHP可以做很多</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不要对它渴望太多"><span class="nav-number">1.5.</span> <span class="nav-text"> 不要对它渴望太多</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#php的天花板"><span class="nav-number">2.</span> <span class="nav-text"> PHP的天花板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何学习php"><span class="nav-number">3.</span> <span class="nav-text"> 如何学习PHP</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = '给PHP初学者的一些建议'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

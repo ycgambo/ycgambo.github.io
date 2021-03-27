@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,Extension,SPL,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="keywords" content="PHP,Extension,SPL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP 初探SPL(二) 迭代器">
+<meta property="og:url" content="http://www.notee.cc/PHP/extension_SPLIterator/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.notee.cc/images/PHP/extension_SPLIterator/SPL_iterator_hierachy.png">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.046Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP 初探SPL(二) 迭代器">
+<meta name="twitter:image" content="http://www.notee.cc/images/PHP/extension_SPLIterator/SPL_iterator_hierachy.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/extension_SPLIterator/">
+
+
+
+
+
+  <title>PHP 初探SPL(二) 迭代器 | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/extension_SPLIterator/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP 初探SPL(二) 迭代器</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-21T00:00:00+08:00">
+                2017-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/extension_SPLIterator/" class="leancloud_visitors" data-flag-title="PHP 初探SPL(二) 迭代器">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/images/PHP/extension_SPLIterator/SPL_iterator_hierachy.png" alt="SPL Iterator"></p>
+<a id="more"></a>
+<p>目录：</p>
+<!-- MarkdownTOC -->
+<ul>
+<li><a href="#emptyiterator">EmptyIterator</a></li>
+<li><a href="#multipleiterator">MultipleIterator</a></li>
+<li><a href="#arrayiterator">ArrayIterator</a>
+<ul>
+<li><a href="#recursivearrayiterator">RecursiveArrayIterator</a></li>
+</ul>
+</li>
+<li><a href="#directoryiterator">DirectoryIterator</a>
+<ul>
+<li><a href="#filesystemiterator">FilesystemIterator</a></li>
+<li><a href="#-globiterator">+ GlobIterator</a></li>
+<li><a href="#-recursivedirectoryiterator">+ RecursiveDirectoryIterator</a></li>
+</ul>
+</li>
+<li><a href="#recursiveiteratoriterator">RecursiveIteratorIterator</a>
+<ul>
+<li><a href="#recursivetreeiterator">RecursiveTreeIterator</a></li>
+</ul>
+</li>
+<li><a href="#iteratoriterator">IteratorIterator</a>
+<ul>
+<li><a href="#norewinditerator">NoRewindIterator</a></li>
+<li><a href="#infiniteiterator">InfiniteIterator</a></li>
+<li><a href="#limititerator">LimitIterator</a></li>
+<li><a href="#appenditerator">AppendIterator</a></li>
+<li><a href="#cachingiterator">CachingIterator</a></li>
+<li><a href="#-recursivecachingiterator">+ RecursiveCachingIterator</a></li>
+<li><a href="#filteriterator">FilterIterator</a></li>
+<li><a href="#-regexiterator">+ RegexIterator</a></li>
+<li><a href="#-recursiveregexiterator">++ RecursiveRegexIterator</a></li>
+<li><a href="#-callbackfilteriterator">+ CallbackFilterIterator</a></li>
+<li><a href="#-recursivefilteriterator">+ RecursiveFilterIterator</a></li>
+<li><a href="#-parentiterator">++ ParentIterator</a></li>
+<li><a href="#-recursivecallbackfilteriterator">++ RecursiveCallbackFilterIterator</a></li>
+</ul>
+</li>
+</ul>
+<!-- /MarkdownTOC -->
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<p><a name="emptyiterator"></a><br>
+<a id="emptyiterator"></a></p>
+<h2 id="emptyiterator"><a class="markdownIt-Anchor" href="#emptyiterator"></a> EmptyIterator</h2>
+<p><a href="http://www.php.net/manual/zh/class.emptyiterator.php" target="_blank" rel="noopener"><code>EmptyIterator</code></a>只简单的继承接口，什么具体的工作也不做，是一个空对象设计模式类。</p>
+<p>请参考：<a href="https://stackoverflow.com/questions/32762768/what-is-the-purpose-of-emptyiterator" target="_blank" rel="noopener">what is the purpose of EmptyIterator?</a>、<a href="https://www.2cto.com/kf/201504/388387.html" target="_blank" rel="noopener">被遗忘的设计模式——空对象模式（Null Object Pattern）</a>。</p>
+<p><a name="multipleiterator"></a><br>
+<a id="multipleiterator"></a></p>
+<h2 id="multipleiterator"><a class="markdownIt-Anchor" href="#multipleiterator"></a> MultipleIterator</h2>
+<p><a href="http://php.net/manual/zh/class.multipleiterator.php" target="_blank" rel="noopener"><code>MultipleIterator</code></a>可以绑定多个迭代器，每次访问<code>MultipleIterator</code>时，相当于访问了每一个绑定的迭代器。</p>
+<p><a name="arrayiterator"></a><br>
+<a id="arrayiterator"></a></p>
+<h2 id="arrayiterator"><a class="markdownIt-Anchor" href="#arrayiterator"></a> ArrayIterator</h2>
+<p><a href="http://php.net/manual/zh/class.arrayiterator.php" target="_blank" rel="noopener"><code>ArrayIterator</code></a>允许在遍历数组和对象时删除和更新值与键。</p>
+<p><a name="recursivearrayiterator"></a><br>
+<a id="recursivearrayiterator"></a></p>
+<h3 id="recursivearrayiterator"><a class="markdownIt-Anchor" href="#recursivearrayiterator"></a> RecursiveArrayIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivearrayiterator.php" target="_blank" rel="noopener"><code>RecursiveArrayIterator</code></a>可以递归迭代当前迭代实体。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$rai = <span class="keyword">new</span> RecursiveArrayIterator(<span class="keyword">array</span>(</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">    <span class="number">1</span>,</span><br><span class="line">    <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'key'</span> =&gt; <span class="string">'val'</span>,</span><br><span class="line">    ),</span><br><span class="line">));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">recursive_array_walker</span><span class="params">($array)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> ($array-&gt;valid()) &#123;</span><br><span class="line">        <span class="keyword">if</span> ($array-&gt;hasChildren()) &#123;</span><br><span class="line">            recursive_array_walker($array-&gt;getChildren());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">echo</span> $array-&gt;key() . <span class="string">' =&gt; '</span> . $array-&gt;current() . PHP_EOL;</span><br><span class="line">        &#125;</span><br><span class="line">        $array-&gt;next();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">recursive_array_walker($rai);</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0 =&gt; 0</span><br><span class="line">1 =&gt; 1</span><br><span class="line">key =&gt; val</span><br></pre></td></tr></table></figure>
+<p><a name="directoryiterator"></a><br>
+<a id="directoryiterator"></a></p>
+<h2 id="directoryiterator"><a class="markdownIt-Anchor" href="#directoryiterator"></a> DirectoryIterator</h2>
+<p><a href="http://php.net/manual/zh/class.directoryiterator.php" target="_blank" rel="noopener"><code>DirectoryIterator</code></a>提供了浏览文件系统目录的简单接口。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (<span class="keyword">new</span> DirectoryIterator(<span class="string">'./'</span>) <span class="keyword">as</span> $dirInfo) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $dirInfo-&gt;getFilename() . PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">..</span><br><span class="line">test.php</span><br></pre></td></tr></table></figure>
+<p><a name="filesystemiterator"></a><br>
+<a id="filesystemiterator"></a></p>
+<h3 id="filesystemiterator"><a class="markdownIt-Anchor" href="#filesystemiterator"></a> FilesystemIterator</h3>
+<p><a href="http://php.net/manual/en/class.filesystemiterator.php" target="_blank" rel="noopener"><code>FilesystemIterator</code></a>每次迭代都会返回一个新的<code>DirectoryIterator</code>。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (<span class="keyword">new</span> FilesystemIterator(<span class="string">'./'</span>) <span class="keyword">as</span> $dirInfo) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $dirInfo-&gt;getFilename() . PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下，但不再包含虚拟目录<code>.</code>和<code>..</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test.php</span><br></pre></td></tr></table></figure>
+<p><a name="%5C-globiterator"></a><br>
+<a id="-globiterator"></a></p>
+<h3 id="globiterator"><a class="markdownIt-Anchor" href="#globiterator"></a> + GlobIterator</h3>
+<p><a href="http://php.net/manual/en/class.globiterator.php" target="_blank" rel="noopener"><code>GlobIterator</code></a>迭代器像<a href="http://php.net/manual/en/function.glob.php" target="_blank" rel="noopener"><code>glob</code></a>函数一样，通过指定的正则表达式匹配文件名，然后迭代文件系统。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$gi = <span class="keyword">new</span> GlobIterator(<span class="string">'*.*'</span>);</span><br><span class="line"><span class="keyword">echo</span> $gi-&gt;count() . PHP_EOL;</span><br><span class="line"></span><br><span class="line">$gi = <span class="keyword">new</span> GlobIterator(<span class="string">'*.md'</span>);</span><br><span class="line"><span class="keyword">echo</span> $gi-&gt;count() . PHP_EOL;</span><br></pre></td></tr></table></figure>
+<p>当前目录下只有一个<code>test.php</code>文件，输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+<p><a name="%5C-recursivedirectoryiterator"></a><br>
+<a id="-recursivedirectoryiterator"></a></p>
+<h3 id="recursivedirectoryiterator"><a class="markdownIt-Anchor" href="#recursivedirectoryiterator"></a> + RecursiveDirectoryIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivedirectoryiterator.php" target="_blank" rel="noopener"><code>RecursiveDirectoryIterator</code></a>可以方便地递归迭代目录。</p>
+<p>示例请参考另一篇文章<a href="http://www.notee.cc/2017/11/16/PHP/syntax_folderWalkerAndFileExtension/#recursivedirectoryiterator">PHP 文件遍历和获取扩展名</a>。</p>
+<p><a name="recursiveiteratoriterator"></a><br>
+<a id="recursiveiteratoriterator"></a></p>
+<h2 id="recursiveiteratoriterator"><a class="markdownIt-Anchor" href="#recursiveiteratoriterator"></a> RecursiveIteratorIterator</h2>
+<p><a href="http://php.net/manual/en/class.recursiveiteratoriterator.php" target="_blank" rel="noopener"><code>RecursiveIteratorIterator</code></a>可以被用来迭代递归迭代器。还是<a href="#recursivearrayiterator"><code>RecursiveArrayIterator</code>的例子</a>，<code>RecursiveIteratorIterator</code>允许我们利用<code>foreach</code>进行递归：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$rai = <span class="keyword">new</span> RecursiveArrayIterator(<span class="keyword">array</span>(</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">    <span class="number">1</span>,</span><br><span class="line">    <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'key'</span> =&gt; <span class="string">'val'</span>,</span><br><span class="line">    ),</span><br><span class="line">));</span><br><span class="line"></span><br><span class="line">$rii = <span class="keyword">new</span> RecursiveIteratorIterator($rai);</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span> ($rii <span class="keyword">as</span> $key =&gt; $val) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"$key =&gt; $val"</span> . PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出相同，不再赘述。</p>
+<p><a name="recursivetreeiterator"></a><br>
+<a id="recursivetreeiterator"></a></p>
+<h3 id="recursivetreeiterator"><a class="markdownIt-Anchor" href="#recursivetreeiterator"></a> RecursiveTreeIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivetreeiterator.php" target="_blank" rel="noopener"><code>RecursiveTreeIterator</code></a>在<code>RecursiveIteratorIterator</code>的基础上，提供了形象的树状输出。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$rai = <span class="keyword">new</span> RecursiveArrayIterator(<span class="keyword">array</span>(</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">    <span class="number">1</span>,</span><br><span class="line">    <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'key'</span> =&gt; <span class="string">'val'</span>,</span><br><span class="line">        <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'deeper'</span>,</span><br><span class="line">        ),</span><br><span class="line">    ),</span><br><span class="line">    <span class="number">3</span>,</span><br><span class="line">));</span><br><span class="line"></span><br><span class="line">$rii = <span class="keyword">new</span> RecursiveTreeIterator($rai);</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span> ($rii <span class="keyword">as</span> $val) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $val . PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">|-0</span><br><span class="line">|-1</span><br><span class="line">|-Array</span><br><span class="line">| |-val</span><br><span class="line">| \-Array</span><br><span class="line">|   \-deeper</span><br><span class="line">\-3</span><br></pre></td></tr></table></figure>
+<p><a name="iteratoriterator"></a><br>
+<a id="iteratoriterator"></a></p>
+<h2 id="iteratoriterator"><a class="markdownIt-Anchor" href="#iteratoriterator"></a> IteratorIterator</h2>
+<p><a href="http://php.net/manual/en/class.iteratoriterator.php" target="_blank" rel="noopener"><code>IteratorIterator</code></a>可以将任何<a href="http://php.net/manual/en/class.traversable.php" target="_blank" rel="noopener"><code>Traversable</code></a>的对象转换成迭代器。大多数没有实现<code>Iterator</code>的类很可能不希望具有全套的迭代器特性。如果是这种情况的话，应该在技术上避免滥用迭代器，否则可能会抛出异常或致命错误。</p>
+<p><a name="norewinditerator"></a><br>
+<a id="norewinditerator"></a></p>
+<h3 id="norewinditerator"><a class="markdownIt-Anchor" href="#norewinditerator"></a> NoRewindIterator</h3>
+<p><a href="http://php.net/manual/en/class.norewinditerator.php" target="_blank" rel="noopener"><code>NoRewindIterator</code></a>不能<code>rewind</code>。它仍然支持<code>rewind</code>方法，但该方法并没有回退迭代器，就像<code>EmptyIterator</code>的空对象设计模式一样。</p>
+<p>示例请参考：<a href="http://php.net/manual/en/norewinditerator.rewind.php" target="_blank" rel="noopener"><code>NoRewindIterator::rewind</code></a></p>
+<p><a name="infiniteiterator"></a><br>
+<a id="infiniteiterator"></a></p>
+<h3 id="infiniteiterator"><a class="markdownIt-Anchor" href="#infiniteiterator"></a> InfiniteIterator</h3>
+<p><a href="http://php.net/manual/en/class.infiniteiterator.php" target="_blank" rel="noopener"><code>InfiniteIterator</code></a>允许周而复始地迭代一个迭代器，当迭代到最后时，它会自动地执行<code>rewind</code>操作。</p>
+<p>示例请参考：<a href="http://php.net/manual/en/class.infiniteiterator.php#110366" target="_blank" rel="noopener"><code>User Contributed Notes</code></a></p>
+<p><a name="limititerator"></a><br>
+<a id="limititerator"></a></p>
+<h3 id="limititerator"><a class="markdownIt-Anchor" href="#limititerator"></a> LimitIterator</h3>
+<p><a href="http://php.net/manual/en/class.limititerator.php" target="_blank" rel="noopener"><code>LimitIterator</code></a>允许只迭代集合的一部分。可以在<code>foreach</code>中方便的迭代指定书目的元素。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$test = <span class="keyword">array</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>);</span><br><span class="line">$ai = <span class="keyword">new</span> ArrayIterator($test);</span><br><span class="line"></span><br><span class="line">$li = <span class="keyword">new</span> LimitIterator($ai, $offset = <span class="number">1</span>, $count = <span class="number">2</span>);</span><br><span class="line"><span class="keyword">foreach</span> ($li <span class="keyword">as</span> $item) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $item;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// echo: 12</span></span><br><span class="line"></span><br><span class="line">$li = <span class="keyword">new</span> LimitIterator($ai, $offset = <span class="number">1</span>);</span><br><span class="line"><span class="keyword">foreach</span> ($li <span class="keyword">as</span> $item) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $item;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// echo: 1234</span></span><br></pre></td></tr></table></figure>
+<p><a name="appenditerator"></a><br>
+<a id="appenditerator"></a></p>
+<h3 id="appenditerator"><a class="markdownIt-Anchor" href="#appenditerator"></a> AppendIterator</h3>
+<p><a href="http://php.net/manual/en/class.appenditerator.php" target="_blank" rel="noopener"><code>AppendIterator</code></a>可以依次迭代多个迭代器。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$arr1 = <span class="keyword">array</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">$arr2 = <span class="keyword">array</span>(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">$ai = <span class="keyword">new</span> AppendIterator();</span><br><span class="line">$ai-&gt;append(<span class="keyword">new</span> ArrayIterator($arr1));</span><br><span class="line">$ai-&gt;append(<span class="keyword">new</span> ArrayIterator($arr2));</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span> ($ai <span class="keyword">as</span> $item) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $item;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// echo : 012345</span></span><br></pre></td></tr></table></figure>
+<p>在空的生成器上使用<code>AppendIterator</code>会导致<code>Fatal error</code>错误。<a href="https://3v4l.org/q3I67" target="_blank" rel="noopener">https://3v4l.org/q3I67</a></p>
+<p><a name="cachingiterator"></a><br>
+<a id="cachingiterator"></a></p>
+<h3 id="cachingiterator"><a class="markdownIt-Anchor" href="#cachingiterator"></a> CachingIterator</h3>
+<p><a href="http://php.net/manual/en/class.cachingiterator.php" target="_blank" rel="noopener"><code>CachingIterator</code></a>可以缓存迭代过的元素。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$arr = <span class="keyword">array</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">$ai = <span class="keyword">new</span> ArrayIterator($arr);</span><br><span class="line">$ci = <span class="keyword">new</span> CachingIterator($ai, CachingIterator::FULL_CACHE);</span><br><span class="line"></span><br><span class="line">$ci-&gt;next();</span><br><span class="line">var_dump($ci-&gt;getCache());</span><br><span class="line"></span><br><span class="line">$ci-&gt;next();</span><br><span class="line">var_dump($ci-&gt;getCache());</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br><span class="line">=======</span><br><span class="line">$ php -f test.php</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; f95addadd4146f33bbad1f3e588ce412f7483df0</span><br><span class="line">array(1) &#123;</span><br><span class="line">  [0] =&gt;</span><br><span class="line">  int(0)</span><br><span class="line">&#125;</span><br><span class="line">array(2) &#123;</span><br><span class="line">  [0] =&gt;</span><br><span class="line">  int(0)</span><br><span class="line">  [1] =&gt;</span><br><span class="line">  int(1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="%5C-recursivecachingiterator"></a><br>
+<a id="-recursivecachingiterator"></a></p>
+<h3 id="recursivecachingiterator"><a class="markdownIt-Anchor" href="#recursivecachingiterator"></a> + RecursiveCachingIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivecachingiterator.php" target="_blank" rel="noopener"><code>RecursiveCachingIterator</code></a>和其它的递归迭代器类似，不再赘述。</p>
+<p><a name="filteriterator"></a><br>
+<a id="filteriterator"></a></p>
+<h3 id="filteriterator"><a class="markdownIt-Anchor" href="#filteriterator"></a> FilterIterator</h3>
+<p><a href="http://php.net/manual/en/class.filteriterator.php" target="_blank" rel="noopener"><code>FilterIterator</code></a>是SPL迭代器中唯一的一个抽象类，它可以过滤掉迭代器的一些不想要的迭代。它的子类必须实现其抽象方法<code>accept</code>，以表明当前迭代是可接受的。</p>
+<p><a name="%5C-regexiterator"></a><br>
+<a id="-regexiterator"></a></p>
+<h3 id="regexiterator"><a class="markdownIt-Anchor" href="#regexiterator"></a> + RegexIterator</h3>
+<p><a href="http://php.net/manual/en/class.regexiterator.php" target="_blank" rel="noopener"><code>RegexIterator</code></a>可以利用正则表达式过滤另一个迭代器，甚至修改迭代内容（尚未完全实现）。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$arr = <span class="keyword">array</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>);</span><br><span class="line"></span><br><span class="line">$ai = <span class="keyword">new</span> ArrayIterator($arr);</span><br><span class="line">$ri = <span class="keyword">new</span> RegexIterator($ai, <span class="string">'/1(\d)/'</span>, RegexIterator::REPLACE);</span><br><span class="line">$ri-&gt;replacement = <span class="string">'2$1'</span>;</span><br><span class="line"></span><br><span class="line">print_r(iterator_to_array($ri));</span><br><span class="line">print_r(iterator_to_array($ai));</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br><span class="line">=======</span><br><span class="line">$ php -f test.php</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; f95addadd4146f33bbad1f3e588ce412f7483df0</span><br><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [1] =&gt; 20</span><br><span class="line">    [2] =&gt; 21</span><br><span class="line">    [3] =&gt; 22</span><br><span class="line">)</span><br><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [0] =&gt; 9</span><br><span class="line">    [1] =&gt; 10</span><br><span class="line">    [2] =&gt; 11</span><br><span class="line">    [3] =&gt; 12</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>可见，替换迭代内容只是在迭代时对迭代出的数据进行修改，并不影响原来的迭代器。另外<code>replacement</code>目前尚不支持函数、字符串<code>.</code>拼接等功能，只能简单的像<code>preg_replace</code>一样工作。</p>
+<p><a name="%5C%5C-recursiveregexiterator"></a><br>
+<a id="-recursiveregexiterator"></a></p>
+<h3 id="recursiveregexiterator"><a class="markdownIt-Anchor" href="#recursiveregexiterator"></a> ++ RecursiveRegexIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursiveregexiterator.php" target="_blank" rel="noopener"><code>RecursiveRegexIterator</code></a>和其它的递归迭代器类似，不再赘述。</p>
+<p><a name="%5C-callbackfilteriterator"></a><br>
+<a id="-callbackfilteriterator"></a></p>
+<h3 id="callbackfilteriterator"><a class="markdownIt-Anchor" href="#callbackfilteriterator"></a> + CallbackFilterIterator</h3>
+<p><a href="http://php.net/manual/en/class.callbackfilteriterator.php" target="_blank" rel="noopener"><code>CallbackFilterIterator</code></a>利用函数对当前迭代进行过滤。迭代器向回调函数传递三个参数：当前迭代值、当前迭代键、迭代器。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$arr = <span class="keyword">array</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>);</span><br><span class="line"></span><br><span class="line">$ai = <span class="keyword">new</span> ArrayIterator($arr);</span><br><span class="line">$cfi = <span class="keyword">new</span> CallbackFilterIterator($ai, <span class="function"><span class="keyword">function</span> <span class="params">($current, $key, $iterator)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> $current % <span class="number">2</span>; <span class="comment">// 过滤偶数</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">print_r(iterator_to_array($cfi));</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [0] =&gt; 9</span><br><span class="line">    [2] =&gt; 11</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><a name="%5C-recursivefilteriterator"></a><br>
+<a id="-recursivefilteriterator"></a></p>
+<h3 id="recursivefilteriterator"><a class="markdownIt-Anchor" href="#recursivefilteriterator"></a> + RecursiveFilterIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivefilteriterator.php" target="_blank" rel="noopener"><code>RecursiveFilterIterator</code></a>和其它的递归迭代器类似，不再赘述。</p>
+<p><a name="%5C%5C-parentiterator"></a><br>
+<a id="-parentiterator"></a></p>
+<h3 id="parentiterator"><a class="markdownIt-Anchor" href="#parentiterator"></a> ++ ParentIterator</h3>
+<p><a href="http://php.net/manual/en/class.parentiterator.php" target="_blank" rel="noopener"><code>ParentIterator</code></a>只迭代那些有子元素的 <strong>递归</strong>元素。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$arr = <span class="keyword">array</span>(</span><br><span class="line">    <span class="number">1</span>,</span><br><span class="line">    <span class="keyword">array</span>(</span><br><span class="line">        <span class="number">2</span>,</span><br><span class="line">    ),</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">$rai = <span class="keyword">new</span> RecursiveArrayIterator($arr);</span><br><span class="line">$pi = <span class="keyword">new</span> ParentIterator($rai);</span><br><span class="line"></span><br><span class="line">print_r(iterator_to_array($pi));</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [1] =&gt; Array</span><br><span class="line">        (</span><br><span class="line">            [0] =&gt; 2</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><a name="%5C%5C-recursivecallbackfilteriterator"></a><br>
+<a id="-recursivecallbackfilteriterator"></a></p>
+<h3 id="recursivecallbackfilteriterator"><a class="markdownIt-Anchor" href="#recursivecallbackfilteriterator"></a> ++ RecursiveCallbackFilterIterator</h3>
+<p><a href="http://php.net/manual/en/class.recursivecallbackfilteriterator.php" target="_blank" rel="noopener"><code>RecursiveCallbackFilterIterator</code></a>和其它的递归迭代器类似，不再赘述。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Extension/" rel="tag"># Extension</a>
+          
+            <a href="/tags/SPL/" rel="tag"># SPL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/syntax_folderWalkerAndFileExtension/" rel="next" title="PHP 文件遍历和获取扩展名">
+                <i class="fa fa-chevron-left"></i> PHP 文件遍历和获取扩展名
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/extension_SPLFileHandling/" rel="prev" title="PHP 初探SPL(五) 文件">
+                PHP 初探SPL(五) 文件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#emptyiterator"><span class="nav-number">1.</span> <span class="nav-text"> EmptyIterator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#multipleiterator"><span class="nav-number">2.</span> <span class="nav-text"> MultipleIterator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#arrayiterator"><span class="nav-number">3.</span> <span class="nav-text"> ArrayIterator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivearrayiterator"><span class="nav-number">3.1.</span> <span class="nav-text"> RecursiveArrayIterator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#directoryiterator"><span class="nav-number">4.</span> <span class="nav-text"> DirectoryIterator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#filesystemiterator"><span class="nav-number">4.1.</span> <span class="nav-text"> FilesystemIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#globiterator"><span class="nav-number">4.2.</span> <span class="nav-text"> + GlobIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivedirectoryiterator"><span class="nav-number">4.3.</span> <span class="nav-text"> + RecursiveDirectoryIterator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#recursiveiteratoriterator"><span class="nav-number">5.</span> <span class="nav-text"> RecursiveIteratorIterator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivetreeiterator"><span class="nav-number">5.1.</span> <span class="nav-text"> RecursiveTreeIterator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iteratoriterator"><span class="nav-number">6.</span> <span class="nav-text"> IteratorIterator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#norewinditerator"><span class="nav-number">6.1.</span> <span class="nav-text"> NoRewindIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#infiniteiterator"><span class="nav-number">6.2.</span> <span class="nav-text"> InfiniteIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#limititerator"><span class="nav-number">6.3.</span> <span class="nav-text"> LimitIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#appenditerator"><span class="nav-number">6.4.</span> <span class="nav-text"> AppendIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cachingiterator"><span class="nav-number">6.5.</span> <span class="nav-text"> CachingIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivecachingiterator"><span class="nav-number">6.6.</span> <span class="nav-text"> + RecursiveCachingIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#filteriterator"><span class="nav-number">6.7.</span> <span class="nav-text"> FilterIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#regexiterator"><span class="nav-number">6.8.</span> <span class="nav-text"> + RegexIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#recursiveregexiterator"><span class="nav-number">6.9.</span> <span class="nav-text"> ++ RecursiveRegexIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#callbackfilteriterator"><span class="nav-number">6.10.</span> <span class="nav-text"> + CallbackFilterIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivefilteriterator"><span class="nav-number">6.11.</span> <span class="nav-text"> + RecursiveFilterIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#parentiterator"><span class="nav-number">6.12.</span> <span class="nav-text"> ++ ParentIterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#recursivecallbackfilteriterator"><span class="nav-number">6.13.</span> <span class="nav-text"> ++ RecursiveCallbackFilterIterator</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = 'PHP 初探SPL(二) 迭代器'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

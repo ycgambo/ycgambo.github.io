@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+  
+  <link rel="stylesheet" media="all" href="https://cdn.jsdelivr.net/npm/han-css@3.3.0/dist/han.min.css">
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+  
+
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content="PHP,Zend Engine,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ycgambo の blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="AST(Abstract Syntax Tree)是Zend编译PHP代码的基础，那么CG(ast)究竟是怎么来的呢？ 20世纪70年代的YACC(Yet Another Compiler-Compiler)和Lex(A Lexical Analyzer Generator)被Zend Engine所使用，PHP的语法分析也就站在了它的肩膀上。 目录：   AST YACC  Bison   Le">
+<meta name="keywords" content="PHP,Zend Engine">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP代码的一生（五）YACC和AST">
+<meta property="og:url" content="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_5/index.html">
+<meta property="og:site_name" content="ycgambo の blog">
+<meta property="og:description" content="AST(Abstract Syntax Tree)是Zend编译PHP代码的基础，那么CG(ast)究竟是怎么来的呢？ 20世纪70年代的YACC(Yet Another Compiler-Compiler)和Lex(A Lexical Analyzer Generator)被Zend Engine所使用，PHP的语法分析也就站在了它的肩膀上。 目录：   AST YACC  Bison   Le">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:30:26.045Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP代码的一生（五）YACC和AST">
+<meta name="twitter:description" content="AST(Abstract Syntax Tree)是Zend编译PHP代码的基础，那么CG(ast)究竟是怎么来的呢？ 20世纪70年代的YACC(Yet Another Compiler-Compiler)和Lex(A Lexical Analyzer Generator)被Zend Engine所使用，PHP的语法分析也就站在了它的肩膀上。 目录：   AST YACC  Bison   Le">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'JUUGFS7COU',
+      apiKey: '82588b534e51902f4dc69b634820db94',
+      indexName: 'notee.cc',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"站内搜索","hits_empty":"未找到以下内容: ${query}","hits_stats":"找到${hits} 条结果，耗时${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_5/">
+
+
+
+
+
+  <title>PHP代码的一生（五）YACC和AST | ycgambo の blog</title>
+  
+
+
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4716139578ba663fce5dcb869ad255aa";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+        <div class="music-player">
+          <i class="fa fa-music"></i>
+          <audio src="http://other.web.rm01.sycdn.kuwo.cn/resource/n1/65/67/1020655236.mp3" style="display:none">
+        </audio></div><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ycgambo の blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"><br><br><br></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-send"></i> <br>
+            
+            更多
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.notee.cc/PHP/engine_general_lifetime_of_php_code_5/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="weiqi.guo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ycgambo の blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP代码的一生（五）YACC和AST</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-20T00:00:00+08:00">
+                2018-08-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/PHP/engine_general_lifetime_of_php_code_5/" class="leancloud_visitors" data-flag-title="PHP代码的一生（五）YACC和AST">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>AST(Abstract Syntax Tree)</code>是Zend编译PHP代码的基础，那么<code>CG(ast)</code>究竟是怎么来的呢？</p>
+<p>20世纪70年代的<code>YACC(Yet Another Compiler-Compiler)</code>和<code>Lex(A Lexical Analyzer Generator)</code>被<code>Zend Engine</code>所使用，<code>PHP</code>的语法分析也就站在了它的肩膀上。</p>
+<p>目录：</p>
+<!-- TOC depthFrom:1 depthTo:3 insertAnchor:true orderedList:false withLinks:true -->
+<ul>
+<li><a href="#ast">AST</a></li>
+<li><a href="#yacc">YACC</a>
+<ul>
+<li><a href="#bison">Bison</a></li>
+</ul>
+</li>
+<li><a href="#lex">Lex</a></li>
+</ul>
+<!-- /TOC -->
+<a id="more"></a>
+<blockquote>
+<p>转载请注明出处：<br>
+<a id="jrztaa5p">www.notee.cc</a></p>
+</blockquote>
+<script>(function(){e=document.getElementById('jrztaa5p');l=window.location.href.split('?')[0];e.innerhtml=l;e.text=l;e.href=l})()</script><link href="https://cdn.bootcss.com/KaTeX/0.10.0/katex.min.css" rel="stylesheet"><hr>
+<blockquote>
+<p>代码是PHP7.1.16的官方release版本 <a href="https://github.com/php/php-src/tree/PHP-7.1.16" target="_blank" rel="noopener">下载</a></p>
+</blockquote>
+<p><a id="markdown-ast" name="ast"></a></p>
+<h2 id="ast"><a class="markdownIt-Anchor" href="#ast"></a> AST</h2>
+<p>暂且放下“<code>CG(ast)</code>是怎么来的”这个问题，先看一下这个AST究竟是个什么东西。</p>
+<p><code>Zend/zend_ast.h:153</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_ast</span> &#123;</span></span><br><span class="line">    zend_ast_kind kind; <span class="comment">/* Type of the node (ZEND_AST_* enum constant) */</span></span><br><span class="line">    zend_ast_attr attr; <span class="comment">/* Additional attribute, use depending on node type */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> lineno;    <span class="comment">/* Line number */</span></span><br><span class="line">    zend_ast *child[<span class="number">1</span>]; <span class="comment">/* Array of children (using struct hack) */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>zend_ast_kind</code>一个无符号短整型:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint16_t</span> zend_ast_kind;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">short</span> <span class="keyword">uint16_t</span>;</span><br></pre></td></tr></table></figure>
+<p><code>zend_ast_kind</code>刚好在内存上和所定义的<code>_zend_ast_kind</code>枚举类型长度相等，所以用<code>ast-&gt;kind</code>时就可以使用这些枚举常量了，如：<code>if (ast-&gt;kind != ZEND_AST_CLOSURE) {}</code>。</p>
+<p><code>Zend/zend_ast.h:28</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZEND_AST_SPECIAL_SHIFT      6</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZEND_AST_IS_LIST_SHIFT      7</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZEND_AST_NUM_CHILDREN_SHIFT 8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> _zend_ast_kind &#123;</span><br><span class="line">    <span class="comment">/* special nodes */</span></span><br><span class="line">    ZEND_AST_ZVAL = <span class="number">1</span> &lt;&lt; ZEND_AST_SPECIAL_SHIFT,</span><br><span class="line">    ZEND_AST_ZNODE,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* declaration nodes */</span></span><br><span class="line">    ZEND_AST_FUNC_DECL,</span><br><span class="line">    ZEND_AST_CLOSURE,</span><br><span class="line">    ZEND_AST_METHOD,</span><br><span class="line">    ZEND_AST_CLASS,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* list nodes */</span></span><br><span class="line">    ZEND_AST_ARG_LIST = <span class="number">1</span> &lt;&lt; ZEND_AST_IS_LIST_SHIFT,</span><br><span class="line">    ZEND_AST_ARRAY,</span><br><span class="line">    ZEND_AST_ENCAPS_LIST,</span><br><span class="line">    ZEND_AST_EXPR_LIST,</span><br><span class="line">    ZEND_AST_STMT_LIST,</span><br><span class="line">    ZEND_AST_IF,</span><br><span class="line">    ZEND_AST_SWITCH_LIST,</span><br><span class="line">    ZEND_AST_CATCH_LIST,</span><br><span class="line">    ZEND_AST_PARAM_LIST,</span><br><span class="line">    ZEND_AST_CLOSURE_USES,</span><br><span class="line">    ZEND_AST_PROP_DECL,</span><br><span class="line">    ZEND_AST_CONST_DECL,</span><br><span class="line">    ZEND_AST_CLASS_CONST_DECL,</span><br><span class="line">    ZEND_AST_NAME_LIST,</span><br><span class="line">    ZEND_AST_TRAIT_ADAPTATIONS,</span><br><span class="line">    ZEND_AST_USE,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 0 child nodes */</span></span><br><span class="line">    ZEND_AST_MAGIC_CONST = <span class="number">0</span> &lt;&lt; ZEND_AST_NUM_CHILDREN_SHIFT,</span><br><span class="line">    ZEND_AST_TYPE,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 1 child node */</span></span><br><span class="line">    ZEND_AST_VAR = <span class="number">1</span> &lt;&lt; ZEND_AST_NUM_CHILDREN_SHIFT,</span><br><span class="line">    ZEND_AST_CONST,</span><br><span class="line">    ZEND_AST_UNPACK,</span><br><span class="line">    ZEND_AST_UNARY_PLUS,</span><br><span class="line">    ZEND_AST_UNARY_MINUS,</span><br><span class="line">    ZEND_AST_CAST,</span><br><span class="line">    ZEND_AST_EMPTY,</span><br><span class="line">    ZEND_AST_ISSET,</span><br><span class="line">    ZEND_AST_SILENCE,</span><br><span class="line">    ZEND_AST_SHELL_EXEC,</span><br><span class="line">    ZEND_AST_CLONE,</span><br><span class="line">    ZEND_AST_EXIT,</span><br><span class="line">    ZEND_AST_PRINT,</span><br><span class="line">    ZEND_AST_INCLUDE_OR_EVAL,</span><br><span class="line">    ZEND_AST_UNARY_OP,</span><br><span class="line">    ZEND_AST_PRE_INC,</span><br><span class="line">    ZEND_AST_PRE_DEC,</span><br><span class="line">    ZEND_AST_POST_INC,</span><br><span class="line">    ZEND_AST_POST_DEC,</span><br><span class="line">    ZEND_AST_YIELD_FROM,</span><br><span class="line"></span><br><span class="line">    ZEND_AST_GLOBAL,</span><br><span class="line">    ZEND_AST_UNSET,</span><br><span class="line">    ZEND_AST_RETURN,</span><br><span class="line">    ZEND_AST_LABEL,</span><br><span class="line">    ZEND_AST_REF,</span><br><span class="line">    ZEND_AST_HALT_COMPILER,</span><br><span class="line">    ZEND_AST_ECHO,</span><br><span class="line">    ZEND_AST_THROW,</span><br><span class="line">    ZEND_AST_GOTO,</span><br><span class="line">    ZEND_AST_BREAK,</span><br><span class="line">    ZEND_AST_CONTINUE,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2 child nodes */</span></span><br><span class="line">    ZEND_AST_DIM = <span class="number">2</span> &lt;&lt; ZEND_AST_NUM_CHILDREN_SHIFT,</span><br><span class="line">    ZEND_AST_PROP,</span><br><span class="line">    ZEND_AST_STATIC_PROP,</span><br><span class="line">    ZEND_AST_CALL,</span><br><span class="line">    ZEND_AST_CLASS_CONST,</span><br><span class="line">    ZEND_AST_ASSIGN,</span><br><span class="line">    ZEND_AST_ASSIGN_REF,</span><br><span class="line">    ZEND_AST_ASSIGN_OP,</span><br><span class="line">    ZEND_AST_BINARY_OP,</span><br><span class="line">    ZEND_AST_GREATER,</span><br><span class="line">    ZEND_AST_GREATER_EQUAL,</span><br><span class="line">    ZEND_AST_AND,</span><br><span class="line">    ZEND_AST_OR,</span><br><span class="line">    ZEND_AST_ARRAY_ELEM,</span><br><span class="line">    ZEND_AST_NEW,</span><br><span class="line">    ZEND_AST_INSTANCEOF,</span><br><span class="line">    ZEND_AST_YIELD,</span><br><span class="line">    ZEND_AST_COALESCE,</span><br><span class="line"></span><br><span class="line">    ZEND_AST_STATIC,</span><br><span class="line">    ZEND_AST_WHILE,</span><br><span class="line">    ZEND_AST_DO_WHILE,</span><br><span class="line">    ZEND_AST_IF_ELEM,</span><br><span class="line">    ZEND_AST_SWITCH,</span><br><span class="line">    ZEND_AST_SWITCH_CASE,</span><br><span class="line">    ZEND_AST_DECLARE,</span><br><span class="line">    ZEND_AST_USE_TRAIT,</span><br><span class="line">    ZEND_AST_TRAIT_PRECEDENCE,</span><br><span class="line">    ZEND_AST_METHOD_REFERENCE,</span><br><span class="line">    ZEND_AST_NAMESPACE,</span><br><span class="line">    ZEND_AST_USE_ELEM,</span><br><span class="line">    ZEND_AST_TRAIT_ALIAS,</span><br><span class="line">    ZEND_AST_GROUP_USE,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3 child nodes */</span></span><br><span class="line">    ZEND_AST_METHOD_CALL = <span class="number">3</span> &lt;&lt; ZEND_AST_NUM_CHILDREN_SHIFT,</span><br><span class="line">    ZEND_AST_STATIC_CALL,</span><br><span class="line">    ZEND_AST_CONDITIONAL,</span><br><span class="line"></span><br><span class="line">    ZEND_AST_TRY,</span><br><span class="line">    ZEND_AST_CATCH,</span><br><span class="line">    ZEND_AST_PARAM,</span><br><span class="line">    ZEND_AST_PROP_ELEM,</span><br><span class="line">    ZEND_AST_CONST_ELEM,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4 child nodes */</span></span><br><span class="line">    ZEND_AST_FOR = <span class="number">4</span> &lt;&lt; ZEND_AST_NUM_CHILDREN_SHIFT,</span><br><span class="line">    ZEND_AST_FOREACH,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>zend_compile</code>阶段就通过检测<code>ZEND_AST</code>的类型，然后调用相应的函数最终产生<code>zend_op</code>。</p>
+<p>关于这个<code>CG(ast)</code>怎么来的，得再回来看<code>zend_compile</code>函数。<code>Zend/zend_language_scanner.c:578</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">sapi_module_struct *sapi_module = &amp;cli_sapi_modulestatic zend_op_array *zend_compile(<span class="keyword">int</span> type)</span><br><span class="line">&#123;</span><br><span class="line">    zend_op_array *op_array = <span class="literal">NULL</span>;</span><br><span class="line">    zend_bool original_in_compilation = CG(in_compilation);</span><br><span class="line"></span><br><span class="line">    CG(in_compilation) = <span class="number">1</span>;</span><br><span class="line">    CG(ast) = <span class="literal">NULL</span>;</span><br><span class="line">    CG(ast_arena) = zend_arena_create(<span class="number">1024</span> * <span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!zendparse()) &#123;</span><br><span class="line">        <span class="keyword">int</span> last_lineno = CG(zend_lineno);</span><br><span class="line">        zend_file_context original_file_context;</span><br><span class="line">        zend_oparray_context original_oparray_context;</span><br><span class="line">        zend_op_array *original_active_op_array = CG(active_op_array);</span><br><span class="line"></span><br><span class="line">        op_array = emalloc(<span class="keyword">sizeof</span>(zend_op_array));</span><br><span class="line">        init_op_array(op_array, type, INITIAL_OP_ARRAY_SIZE);</span><br><span class="line">        CG(active_op_array) = op_array;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (zend_ast_process) &#123;</span><br><span class="line">            zend_ast_process(CG(ast));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        zend_file_context_begin(&amp;original_file_context);</span><br><span class="line">        zend_oparray_context_begin(&amp;original_oparray_context);</span><br><span class="line">        zend_compile_top_stmt(CG(ast));</span><br><span class="line">        CG(zend_lineno) = last_lineno;</span><br><span class="line">        zend_emit_final_return(type == ZEND_USER_FUNCTION);</span><br><span class="line">        op_array-&gt;line_start = <span class="number">1</span>;</span><br><span class="line">        op_array-&gt;line_end = last_lineno;</span><br><span class="line">        pass_two(op_array);</span><br><span class="line">        zend_oparray_context_end(&amp;original_oparray_context);</span><br><span class="line">        zend_file_context_end(&amp;original_file_context);</span><br><span class="line"></span><br><span class="line">        CG(active_op_array) = original_active_op_array;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    zend_ast_destroy(CG(ast));</span><br><span class="line">    zend_arena_destroy(CG(ast_arena));</span><br><span class="line"></span><br><span class="line">    CG(in_compilation) = original_in_compilation;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> op_array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>CG(ast)</code>的赋值就发生在<code>zendparse</code>函数中，<code>Zend/zend_language_parser.c:63</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> yyparse         zendparse</span></span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_language_parser.c</code>这个文件非常难以阅读，其实它是由程序所生成的。这就是<code>YACC</code>的工作了。</p>
+<p><a id="markdown-yacc" name="yacc"></a></p>
+<h2 id="yacc"><a class="markdownIt-Anchor" href="#yacc"></a> YACC</h2>
+<p>文档链接：<a href="http://dinosaur.compilertools.net/yacc" target="_blank" rel="noopener">Yacc Manual</a></p>
+<blockquote>
+<p>Computer program input generally has some structure; in fact, every computer program that does input can be thought of as defining an ``input language’’ which it accepts. An input language may be as complex as a programming language, or as simple as a sequence of numbers. Unfortunately, usual input facilities are limited, difficult to use, and often are lax about checking their inputs for validity.</p>
+</blockquote>
+<blockquote>
+<p>Yacc provides a general tool for describing the input to a computer program. The Yacc user specifies the structures of his input, together with code to be invoked as each such structure is recognized. Yacc turns such a specification into a subroutine that handles the input process; frequently, it is convenient and appropriate to have most of the flow of control in the user’s application handled by this subroutine.</p>
+</blockquote>
+<p>简单的说，它是一个C语言的语法分析工具。它的结构是这样的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">declarations</span><br><span class="line">%%</span><br><span class="line">rules</span><br><span class="line">%%</span><br><span class="line">programs</span><br></pre></td></tr></table></figure>
+<p>举个例子，文件看起来大概是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">#  include  &lt;stdio.h&gt;</span><br><span class="line">#  include  &lt;ctype.h&gt;</span><br><span class="line"></span><br><span class="line">int  regs[26];</span><br><span class="line">int  base;</span><br><span class="line"></span><br><span class="line">%&#125;</span><br><span class="line"></span><br><span class="line">%start  list</span><br><span class="line"></span><br><span class="line">%token  DIGIT  LETTER</span><br><span class="line"></span><br><span class="line">%left  &apos;|&apos;</span><br><span class="line">%left  &apos;&amp;&apos;</span><br><span class="line">%left  &apos;+&apos;  &apos;-&apos;</span><br><span class="line">%left  &apos;*&apos;  &apos;/&apos;  &apos;%&apos;</span><br><span class="line">%left  UMINUS      /*  supplies  precedence  for  unary  minus  */</span><br><span class="line"></span><br><span class="line">%%      /*  beginning  of  rules  section  */</span><br><span class="line"></span><br><span class="line">list :    /*  empty  */</span><br><span class="line">     |    list  stat  &apos;\n&apos;</span><br><span class="line">     |    list  error  &apos;\n&apos;</span><br><span class="line">               &#123;    yyerrok;  &#125;</span><br><span class="line">     ;</span><br><span class="line"></span><br><span class="line">stat :    expr</span><br><span class="line">               &#123;    printf( &quot;%d\n&quot;, $1 );  &#125;</span><br><span class="line">     |    LETTER  &apos;=&apos;  expr</span><br><span class="line">               &#123;    regs[$1]  =  $3;  &#125;</span><br><span class="line">     ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">expr :    &apos;(&apos;  expr  &apos;)&apos;</span><br><span class="line">               &#123;    $$  =  $2;  &#125;</span><br><span class="line">     |    expr  &apos;+&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  +  $3;  &#125;</span><br><span class="line">     |    expr  &apos;-&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  -  $3;  &#125;</span><br><span class="line">     |    expr  &apos;*&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  *  $3;  &#125;</span><br><span class="line">     |    expr  &apos;/&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  /  $3;  &#125;</span><br><span class="line">     |    expr  &apos;%&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  %  $3;  &#125;</span><br><span class="line">     |    expr  &apos;&amp;&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  &amp;  $3;  &#125;</span><br><span class="line">     |    expr  &apos;|&apos;  expr</span><br><span class="line">               &#123;    $$  =  $1  |  $3;  &#125;</span><br><span class="line">     |    &apos;-&apos;  expr        %prec  UMINUS</span><br><span class="line">               &#123;    $$  =  -  $2;  &#125;</span><br><span class="line">     |    LETTER</span><br><span class="line">               &#123;    $$  =  regs[$1];  &#125;</span><br><span class="line">     |    number</span><br><span class="line">     ;</span><br><span class="line"></span><br><span class="line">number    :    DIGIT</span><br><span class="line">               &#123;    $$ = $1;    base  =  ($1==0)  ?  8  :  10;  &#125;</span><br><span class="line">     |    number  DIGIT</span><br><span class="line">               &#123;    $$  =  base * $1  +  $2;  &#125;</span><br><span class="line">     ;</span><br><span class="line"></span><br><span class="line">%%      /*  start  of  programs  */</span><br><span class="line"></span><br><span class="line">yylex() &#123;      /*  lexical  analysis  routine  */</span><br><span class="line">              /*  returns  LETTER  for  a  lower  case  letter,  yylval = 0  through  25  */</span><br><span class="line">              /*  return  DIGIT  for  a  digit,  yylval = 0  through  9  */</span><br><span class="line">              /*  all  other  characters  are  returned  immediately  */</span><br><span class="line"></span><br><span class="line">     int  c;</span><br><span class="line"></span><br><span class="line">     while(  (c=getchar())  ==  &apos; &apos;  )  &#123;/*  skip  blanks  */  &#125;</span><br><span class="line"></span><br><span class="line">     /*  c  is  now  nonblank  */</span><br><span class="line"></span><br><span class="line">     if(  islower(  c  )  )  &#123;</span><br><span class="line">          yylval  =  c  -  &apos;a&apos;;</span><br><span class="line">          return  (  LETTER  );</span><br><span class="line">          &#125;</span><br><span class="line">     if(  isdigit(  c  )  )  &#123;</span><br><span class="line">          yylval  =  c  -  &apos;0&apos;;</span><br><span class="line">          return(  DIGIT  );</span><br><span class="line">          &#125;</span><br><span class="line">     return(  c  );</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p><code>Zend/zend_language_parser.y</code>、<code>Zend/zend_ini_parser.y</code>都是用的<code>YACC</code>来解析的。</p>
+<p><code>make</code>工具对<code>YACC</code>文件提供了支持。<a href="https://www.gnu.org/software/make/manual/html_node/Catalogue-of-Rules.html#Catalogue-of-Rules" target="_blank" rel="noopener">Catalogue of Built-In Rules</a>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Yacc for C programs</span><br><span class="line">    n.c is made automatically from n.y by </span><br><span class="line">    running Yacc with the recipe ‘$(YACC) $(YFLAGS)’</span><br></pre></td></tr></table></figure>
+<p>然后在<code>Makefile</code>里写进去就行了。比如我的<code>Makefile:539</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/github/php<span class="number">-7.1</span><span class="number">.16</span>/Zend/zend_language_scanner.c: /github/php<span class="number">-7.1</span><span class="number">.16</span>/Zend/zend_language_scanner.l</span><br><span class="line">    @(cd $(top_srcdir); $(RE2C) $(RE2C_FLAGS) --no-generation-date --<span class="keyword">case</span>-inverted -cbdFt Zend/zend_language_scanner_defs.h -oZend/zend_language_scanner.c Zend/zend_language_scanner.l)</span><br></pre></td></tr></table></figure>
+<p>更多的细节，这里就先不探究了。</p>
+<p><a id="markdown-bison" name="bison"></a></p>
+<h3 id="bison"><a class="markdownIt-Anchor" href="#bison"></a> Bison</h3>
+<p>顺便提一句，YACC有很多版本，<a href="https://en.wikipedia.org/wiki/GNU_bison" target="_blank" rel="noopener">参考wiki</a>，Zend所采用的是<a href="http://dinosaur.compilertools.net/#bison" target="_blank" rel="noopener">GNU Bison</a>这个版本。除此之外，MySQL、Go、Ruby和Bash等也都采用的Bison做语法解析。</p>
+<p><a id="markdown-lex" name="lex"></a></p>
+<h2 id="lex"><a class="markdownIt-Anchor" href="#lex"></a> Lex</h2>
+<p>Lex和Yacc是一对工具，Yacc每当解析句法需要一个Token时，它便向Lex要，然后分析句法，执行相应的动作。</p>
+<figure class="highlight plain"><figcaption><span>&#123;cmd</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">           lexical        grammar</span><br><span class="line">            rules          rules</span><br><span class="line">              |              |</span><br><span class="line">              v              v</span><br><span class="line">         +---------+    +---------+</span><br><span class="line">         |   Lex   |    |  Yacc   |</span><br><span class="line">         +---------+    +---------+</span><br><span class="line">              |              |</span><br><span class="line">              v              v</span><br><span class="line">         +---------+    +---------+</span><br><span class="line">Input -&gt; |  yylex  | -&gt; | yyparse | -&gt; Parsed input</span><br><span class="line">         +---------+    +---------+</span><br><span class="line"></span><br><span class="line">             /--------------\</span><br><span class="line">             | Lex with Yacc|</span><br><span class="line">             \--------------/</span><br></pre></td></tr></table></figure>
+<p>Zend采用的是<a href="http://dinosaur.compilertools.net/#flex" target="_blank" rel="noopener">Flex</a>版本的Lex。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Zend-Engine/" rel="tag"># Zend Engine</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/PHP/engine_general_lifetime_of_php_code_4/" rel="next" title="PHP代码的一生（四）zend_execute">
+                <i class="fa fa-chevron-left"></i> PHP代码的一生（四）zend_execute
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/PHP/engine_general_lifetime_of_php_code_6/" rel="prev" title="PHP代码的一生（六）Lex和Tokenizing">
+                PHP代码的一生（六）Lex和Tokenizing <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitalk-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="weiqi.guo">
+            
+              <p class="site-author-name" itemprop="name">weiqi.guo</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ast"><span class="nav-number">1.</span> <span class="nav-text"> AST</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#yacc"><span class="nav-number">2.</span> <span class="nav-text"> YACC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bison"><span class="nav-number">2.1.</span> <span class="nav-text"> Bison</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lex"><span class="nav-number">3.</span> <span class="nav-text"> Lex</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ycgambo. All rights reserved.</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/velocity-animate@1.2.1/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery.fancybox@2.1.5/source/jquery.fancybox.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitalk(){
+        var t = 'PHP代码的一生（五）YACC和AST'.replace(/,/g, "，");
+        var gitalk = new Gitalk({
+            clientID: '1504aa48c81f46a83123',
+            clientSecret: 'a299949ab6664dea3d034393d4e271f63783db14',
+            repo: 'boke-comments',
+            owner: 'ycgambo',
+            admin: ['ycgambo'],
+            id: t.length > 45 ? (t.substring(0, 45) + '...') : t,
+            labels: ['Gitalk'],
+            distractionFreeMode: false
+            });
+        gitalk.render('gitalk-container');
+      }
+
+      
+      renderGitalk();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+    
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.css">
+
+  
+  
+    
+  
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@1.11.7/dist/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.3"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("LeVWAMGnpOJAFuRo2iQwXWr2-gzGzoHsz", "70HrkvNzax4IuR7AtnUNIAev");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
