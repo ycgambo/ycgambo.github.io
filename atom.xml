@@ -301,9 +301,9 @@
       <category term="PHP" scheme="http://www.notee.cc/categories/PHP/"/>
     
     
-      <category term="PHP" scheme="http://www.notee.cc/tags/PHP/"/>
-    
       <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
+    
+      <category term="PHP" scheme="http://www.notee.cc/tags/PHP/"/>
     
       <category term="Oops!" scheme="http://www.notee.cc/tags/Oops/"/>
     
@@ -405,11 +405,11 @@
     </summary>
     
     
+      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
+    
       <category term="PHP" scheme="http://www.notee.cc/tags/PHP/"/>
     
       <category term="Strange" scheme="http://www.notee.cc/tags/Strange/"/>
-    
-      <category term="todo" scheme="http://www.notee.cc/tags/todo/"/>
     
   </entry>
   
