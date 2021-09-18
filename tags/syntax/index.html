@@ -86,7 +86,7 @@
 <meta name="description" content="非知之艰 行之惟艰">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ycgambo の blog">
-<meta property="og:url" content="http://www.notee.cc/tags/Syntax/index.html">
+<meta property="og:url" content="http://www.notee.cc/tags/syntax/index.html">
 <meta property="og:site_name" content="ycgambo の blog">
 <meta property="og:description" content="非知之艰 行之惟艰">
 <meta property="og:locale" content="zh-Hans">
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://www.notee.cc/tags/Syntax/">
+  <link rel="canonical" href="http://www.notee.cc/tags/syntax/">
 
 
 
 
 
-  <title>标签: Syntax | ycgambo の blog</title>
+  <title>标签: syntax | ycgambo の blog</title>
   
 
 
@@ -299,7 +299,7 @@
 
     <div id="posts" class="posts-collapse">
       <div class="collection-title">
-        <h2>Syntax<small>标签</small>
+        <h2>syntax<small>标签</small>
         </h2>
       </div>
 
@@ -311,87 +311,9 @@
 
       <h3 class="post-title">
         
-            <a class="post-title-link" href="/PHP/syntax_configurable_const/" itemprop="url">
+            <a class="post-title-link" href="/PHP/syntax_CleanItUp/" itemprop="url">
               
-                <span itemprop="name">PHP 定义可配置的类常量</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-04-02T18:15:52+08:00" content="2019-04-02">
-          04-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/PHP/syntax_time_and_timezone/" itemprop="url">
-              
-                <span itemprop="name">PHP 时间与时区你用对了吗？</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-02-05T11:07:07+08:00" content="2019-02-05">
-          02-05
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/PHP/syntax_preg/" itemprop="url">
-              
-                <span itemprop="name">PHP 正则操作笔记</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2017-11-23T00:00:00+08:00" content="2017-11-23">
-          11-23
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/PHP/syntax_returnOfAssignment/" itemprop="url">
-              
-                <span itemprop="name">PHP 赋值运算的返回值</span>
+                <span itemprop="name">PHP 你跟我说左手代码右手诗？</span>
               
             </a>
         
@@ -415,43 +337,17 @@
 
       <h3 class="post-title">
         
-            <a class="post-title-link" href="/PHP/syntax_folderWalkerAndFileExtension/" itemprop="url">
+            <a class="post-title-link" href="/PHP/syntax_stringIncreasement/" itemprop="url">
               
-                <span itemprop="name">PHP 文件遍历和获取扩展名</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2017-11-16T00:00:00+08:00" content="2017-11-16">
-          11-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/PHP/syntax_autoloadCountOff/" itemprop="url">
-              
-                <span itemprop="name">PHP 细数自动加载</span>
+                <span itemprop="name">PHP 字符串递增运算</span>
               
             </a>
         
       </h3>
 
       <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2017-11-14T00:00:00+08:00" content="2017-11-14">
-          11-14
+        <time class="post-time" itemprop="dateCreated" datetime="2017-11-22T00:00:00+08:00" content="2017-11-22">
+          11-22
         </time>
       </div>
 
@@ -813,6 +709,96 @@
           }
           for(var i = 0; i < entries.length; i++) {
             var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+entries[i];
             var element = document.getElementById(url);
             var countSpan = $(element).find(COUNT_CONTAINER_REF);
             if( countSpan.text() == '') {
